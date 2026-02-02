@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("Login successful"),
-        backgroundColor: Colors.green,
+        backgroundColor: Color.fromARGB(255, 0, 60, 33),
         duration: Duration(seconds: 2),
       ),
     );

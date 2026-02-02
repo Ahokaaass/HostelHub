@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/notification_service.dart';
 import '../dashboards/notifications_page.dart';
 import 'session.dart';
@@ -19,7 +20,7 @@ class DashboardScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userId = Session.userId;
+    final String? userId = Session.userId;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -44,6 +45,7 @@ class DashboardScaffold extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // ================= APP NAME =================
                       Row(
                         children: const [
                           CircleAvatar(
@@ -67,11 +69,12 @@ class DashboardScaffold extends StatelessWidget {
                         ],
                       ),
 
-                      /// 🔔 NOTIFICATION ICON
+                      // ================= NOTIFICATION + PROFILE =================
                       Row(
                         children: [
                           Stack(
                             children: [
+                              /// 🔔 BELL ICON (ALWAYS VISIBLE)
                               IconButton(
                                 icon: const Icon(
                                   Icons.notifications,
@@ -83,8 +86,7 @@ class DashboardScaffold extends StatelessWidget {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (_) =>
-                                                NotificationsPage(
+                                            builder: (_) => NotificationsPage(
                                               userId: userId,
                                             ),
                                           ),
@@ -92,35 +94,36 @@ class DashboardScaffold extends StatelessWidget {
                                       },
                               ),
 
-                              /// 🔴 UNREAD INDICATOR (NO COUNT)
+                              /// 🔴 UNREAD INDICATOR (PER USER – FIXED)
                               if (userId != null)
-                                StreamBuilder(
-                                  stream: NotificationService
-                                      .unreadStream(userId),
+                                StreamBuilder<List<QueryDocumentSnapshot>>(
+                                 stream: NotificationService.unreadForUser(userId),
                                   builder: (context, snapshot) {
                                     if (!snapshot.hasData ||
-                                        snapshot.data!.docs.isEmpty) {
+                                        snapshot.data!.isEmpty) {
                                       return const SizedBox();
                                     }
 
-                                    final hasEmergency =
-                                        snapshot.data!.docs.any(
-                                      (d) =>
-                                          (d.data()
-                                                  as Map<String, dynamic>)['type'] ==
-                                              'emergency',
-                                    );
+                                    final unreadDocs = snapshot.data!;
+
+                                    final bool hasEmergency =
+                                        unreadDocs.any((doc) {
+                                      final data = doc.data()
+                                          as Map<String, dynamic>;
+                                      return data['type'] == 'emergency';
+                                    });
 
                                     return Positioned(
                                       right: 6,
                                       top: 6,
                                       child: Container(
-                                        width: 14,
-                                        height: 14,
+                                        width: 16,
+                                        height: 16,
                                         decoration: const BoxDecoration(
                                           color: Colors.red,
                                           shape: BoxShape.circle,
                                         ),
+                                        alignment: Alignment.center,
                                         child: hasEmergency
                                             ? const Icon(
                                                 Icons.warning,
@@ -136,7 +139,7 @@ class DashboardScaffold extends StatelessWidget {
                           ),
                           const SizedBox(width: 10),
 
-                          /// 👤 PROFILE
+                          /// 👤 PROFILE ICON
                           GestureDetector(
                             onTap: onProfileTap,
                             child: const CircleAvatar(
@@ -175,6 +178,7 @@ class DashboardScaffold extends StatelessWidget {
             ),
           ),
 
+          // ================= BODY =================
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),

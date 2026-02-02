@@ -21,6 +21,7 @@ class _SendNotificationPageState extends State<SendNotificationPage> {
       appBar: AppBar(
         title: const Text("Send Notice"),
         backgroundColor: const Color(0xFF3A6B52),
+        foregroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -54,23 +55,29 @@ class _SendNotificationPageState extends State<SendNotificationPage> {
                 onPressed: () async {
                   if (msgCtrl.text.trim().isEmpty) return;
 
+                  // 🔥 Emergency record
                   if (type == "emergency") {
-                    await FirebaseFirestore.instance.collection('emergencies').add({
-                    "title": "Emergency Alert",
-                    "message": msgCtrl.text.trim(),
-                    "severity": "High",
-                    "createdBy": Session.role,
-                    "createdAt": Timestamp.now(),
-                    "status": "submitted",
-                    "receivedBy": null,
-                    "handledBy": null,
-                  });
-
+                    await FirebaseFirestore.instance
+                        .collection('emergencies')
+                        .add({
+                      "title": "Emergency Alert",
+                      "message": msgCtrl.text.trim(),
+                      "severity": "High",
+                      "createdBy": Session.role,
+                      "createdAt": Timestamp.now(),
+                      "status": "submitted",
+                      "receivedBy": null,
+                      "handledBy": null,
+                    });
                   }
 
+                  // 🔔 Notification (UNREAD)
                   await NotificationService.send(
                     message: msgCtrl.text.trim(),
                     type: type,
+                    extraData: {
+                      "createdBy": Session.role,
+                    },
                   );
 
                   Navigator.pop(context);
