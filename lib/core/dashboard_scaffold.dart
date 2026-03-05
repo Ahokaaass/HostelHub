@@ -4,6 +4,15 @@ import '../services/notification_service.dart';
 import '../dashboards/notifications_page.dart';
 import 'session.dart';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared theme constants — import these in any screen for consistency
+// ─────────────────────────────────────────────────────────────────────────────
+const kBlue       = Color(0xFF1565C0);
+const kBlueLight  = Color(0xFF1E88E5);
+const kBlueTint   = Color(0xFFE8F0FE);
+const kBlueBorder = Color(0xFFBBD0F8);
+const kBgColor    = Color(0xFFF5F8FF);
+
 class DashboardScaffold extends StatelessWidget {
   final String dashboardName;
   final String userName;
@@ -21,171 +30,255 @@ class DashboardScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String? userId = Session.userId;
+    final String hostel  = Session.hostel ?? '';
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: kBgColor,
       body: Column(
         children: [
-          // ================= HEADER =================
+          // ════════════════════════ HEADER ════════════════════════════════
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
             decoration: const BoxDecoration(
-              color: Color(0xFF3A6B52),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(26),
-                bottomRight: Radius.circular(26),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [kBlue, kBlueLight],
               ),
+              borderRadius: BorderRadius.only(
+                bottomLeft : Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color     : Color(0x351565C0),
+                  blurRadius: 20,
+                  offset    : Offset(0, 8),
+                ),
+              ],
             ),
             child: SafeArea(
               bottom: false,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // ================= APP NAME =================
-                      Row(
-                        children: const [
-                          CircleAvatar(
-                            radius: 16,
-                            backgroundColor: Colors.white,
-                            child: Icon(
-                              Icons.apartment,
-                              size: 18,
-                              color: Color(0xFF3A6B52),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ── Top bar: brand  ←→  actions ──────────────────────
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Brand
+                        Row(
+                          children: [
+                            Container(
+                              width : 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color     : Color(0x201565C0),
+                                    blurRadius: 8,
+                                    offset    : Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(Icons.apartment_rounded,
+                                  size: 22, color: kBlue),
                             ),
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            "HostelHub",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      // ================= NOTIFICATION + PROFILE =================
-                      Row(
-                        children: [
-                          Stack(
-                            children: [
-                              /// 🔔 BELL ICON (ALWAYS VISIBLE)
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.notifications,
-                                  color: Colors.white,
+                            const SizedBox(width: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'HostelHub',
+                                  style: TextStyle(
+                                    color     : Colors.white,
+                                    fontSize  : 16,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.2,
+                                  ),
                                 ),
-                                onPressed: userId == null
-                                    ? null
-                                    : () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => NotificationsPage(
-                                              userId: userId,
+                                if (hostel.isNotEmpty)
+                                  Text(
+                                    hostel,
+                                    style: TextStyle(
+                                      color     : Colors.white.withOpacity(0.72),
+                                      fontSize  : 11,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        // Actions
+                        Row(
+                          children: [
+                            // ── Bell ───────────────────────────────────────
+                            Stack(
+                              children: [
+                                _iconBtn(
+                                  icon : Icons.notifications_outlined,
+                                  solid: false,
+                                  onTap: userId == null
+                                      ? null
+                                      : () => Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  NotificationsPage(
+                                                      userId: userId),
                                             ),
                                           ),
-                                        );
-                                      },
-                              ),
-
-                              /// 🔴 UNREAD INDICATOR (PER USER – FIXED)
-                              if (userId != null)
-                                StreamBuilder<List<QueryDocumentSnapshot>>(
-                                 stream: NotificationService.unreadForUser(userId),
-                                  builder: (context, snapshot) {
-                                    if (!snapshot.hasData ||
-                                        snapshot.data!.isEmpty) {
-                                      return const SizedBox();
-                                    }
-
-                                    final unreadDocs = snapshot.data!;
-
-                                    final bool hasEmergency =
-                                        unreadDocs.any((doc) {
-                                      final data = doc.data()
-                                          as Map<String, dynamic>;
-                                      return data['type'] == 'emergency';
-                                    });
-
-                                    return Positioned(
-                                      right: 6,
-                                      top: 6,
-                                      child: Container(
-                                        width: 16,
-                                        height: 16,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: hasEmergency
-                                            ? const Icon(
-                                                Icons.warning,
-                                                size: 10,
-                                                color: Colors.white,
-                                              )
-                                            : null,
-                                      ),
-                                    );
-                                  },
                                 ),
-                            ],
-                          ),
-                          const SizedBox(width: 10),
+                                if (userId != null)
+                                  StreamBuilder<
+                                      List<QueryDocumentSnapshot>>(
+                                    stream: NotificationService
+                                        .unreadForUser(userId),
+                                    builder: (context, snapshot) {
+                                      if (!snapshot.hasData ||
+                                          snapshot.data!.isEmpty) {
+                                        return const SizedBox();
+                                      }
+                                      final hasEmergency =
+                                          snapshot.data!.any((doc) {
+                                        final d = doc.data()
+                                            as Map<String, dynamic>;
+                                        return d['type'] == 'emergency';
+                                      });
+                                      return Positioned(
+                                        right: 4,
+                                        top  : 4,
+                                        child: Container(
+                                          width : 14,
+                                          height: 14,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.redAccent,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: hasEmergency
+                                              ? const Icon(
+                                                  Icons.warning_rounded,
+                                                  size : 9,
+                                                  color: Colors.white,
+                                                )
+                                              : null,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(width: 10),
 
-                          /// 👤 PROFILE ICON
-                          GestureDetector(
-                            onTap: onProfileTap,
-                            child: const CircleAvatar(
-                              radius: 16,
-                              backgroundColor: Colors.white,
-                              child: Icon(
-                                Icons.person,
-                                size: 18,
-                                color: Color(0xFF3A6B52),
-                              ),
+                            // ── Profile ────────────────────────────────────
+                            _iconBtn(
+                              icon : Icons.person_outline_rounded,
+                              solid: true,
+                              onTap: onProfileTap,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 22),
+
+                    // ── Dashboard name ──────────────────────────────────
+                    Text(
+                      dashboardName,
+                      style: const TextStyle(
+                        color     : Colors.white,
+                        fontSize  : 22,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.3,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // ── User badge ──────────────────────────────────────
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.person_rounded,
+                              size: 13, color: Colors.white70),
+                          const SizedBox(width: 5),
+                          Text(
+                            userName,
+                            style: const TextStyle(
+                              color     : Colors.white,
+                              fontSize  : 12,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    dashboardName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 19,
-                      fontWeight: FontWeight.bold,
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    userName,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
 
-          // ================= BODY =================
+          // ════════════════════════ BODY ═══════════════════════════════════
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
               child: body,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // ── Helper: header icon button ────────────────────────────────────────────
+  static Widget _iconBtn({
+    required IconData icon,
+    required bool solid,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width : 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: solid
+              ? Colors.white
+              : Colors.white.withOpacity(0.18),
+          borderRadius: BorderRadius.circular(12),
+          border: solid
+              ? null
+              : Border.all(
+                  color: Colors.white.withOpacity(0.3), width: 1),
+          boxShadow: solid
+              ? const [
+                  BoxShadow(
+                    color     : Color(0x201565C0),
+                    blurRadius: 8,
+                    offset    : Offset(0, 2),
+                  )
+                ]
+              : null,
+        ),
+        child: Icon(icon,
+            size : 22,
+            color: solid ? kBlue : Colors.white),
       ),
     );
   }

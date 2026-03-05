@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'emergency_model.dart';
+import '../../../student/student_data.dart'; // adjust path as needed
+
 // ── Theme constants ───────────────────────────────────────────────────────────
 const _kBlue      = Color(0xFF1565C0);
 const _kBlueLight = Color(0xFF1E88E5);
@@ -10,44 +13,38 @@ const _kBg        = Color(0xFFF5F8FF);
 const _kText      = Color(0xFF1A1A2E);
 const _kSubtext   = Color(0xFF6B7280);
 
-// ── Emergency model (inline — no external import needed) ─────────────────────
-class _EmergencyModel {
-  final String id;
-  final String title;
-  final String message;
-  final String status;   // 'active' | 'received' | 'handled'
-  final String severity; // e.g. 'High', 'Medium', 'Low'
-  final List<String> readBy;
-  final DateTime? createdAt;
+/// Student-facing emergency list — read-only.
+/// Opening this page marks ALL unread emergencies as read for this user.
+class StudentEmergencyPage extends StatefulWidget {
+  const StudentEmergencyPage({super.key});
 
-  const _EmergencyModel({
-    required this.id,
-    required this.title,
-    required this.message,
-    required this.status,
-    required this.severity,
-    required this.readBy,
-    this.createdAt,
-  });
-
-  factory _EmergencyModel.fromDoc(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return _EmergencyModel(
-      id       : doc.id,
-      title    : data['title']    as String? ?? '',
-      message  : data['message']  as String? ?? '',
-      status   : data['status']   as String? ?? 'active',
-      severity : data['severity'] as String? ?? 'Medium',
-      readBy   : List<String>.from(data['readBy'] ?? []),
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
-    );
-  }
+  @override
+  State<StudentEmergencyPage> createState() => _StudentEmergencyPageState();
 }
 
-// ── Page ─────────────────────────────────────────────────────────────────────
-/// Security-facing emergency list — read-only view.
-class SecurityEmergencyPage extends StatelessWidget {
-  const SecurityEmergencyPage({super.key});
+class _StudentEmergencyPageState extends State<StudentEmergencyPage> {
+  @override
+  void initState() {
+    super.initState();
+    _markAllRead();
+  }
+
+  /// Adds the current userId to readBy on every emergency doc they haven't read.
+  Future<void> _markAllRead() async {
+    final userId = StudentData.admissionNo;
+    final snap = await FirebaseFirestore.instance
+        .collection('emergencies')
+        .get();
+    for (final doc in snap.docs) {
+      final data  = doc.data();
+      final readBy = List<String>.from(data['readBy'] ?? []);
+      if (!readBy.contains(userId)) {
+        await doc.reference.update({
+          'readBy': [...readBy, userId],
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,21 +98,17 @@ class SecurityEmergencyPage extends StatelessWidget {
                     const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Emergency Alerts',
-                          style: TextStyle(
-                              color        : Colors.white,
-                              fontSize     : 20,
-                              fontWeight   : FontWeight.w800,
-                              letterSpacing: -0.3),
-                        ),
+                        Text('Emergency Alerts',
+                            style: TextStyle(
+                                color     : Colors.white,
+                                fontSize  : 20,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.3)),
                         SizedBox(height: 2),
-                        Text(
-                          'Active hostel emergency updates',
-                          style: TextStyle(
-                              color   : Colors.white70,
-                              fontSize: 12),
-                        ),
+                        Text('Active hostel emergency updates',
+                            style: TextStyle(
+                                color  : Colors.white70,
+                                fontSize: 12)),
                       ],
                     ),
                   ],
@@ -132,21 +125,12 @@ class SecurityEmergencyPage extends StatelessWidget {
                   .orderBy('createdAt', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+                if (!snapshot.hasData) {
                   return const Center(
                       child: CircularProgressIndicator(color: _kBlue));
                 }
 
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      'Error loading alerts',
-                      style: TextStyle(color: Colors.red.shade400),
-                    ),
-                  );
-                }
-
-                final docs = snapshot.data?.docs ?? [];
+                final docs = snapshot.data!.docs;
 
                 if (docs.isEmpty) {
                   return Center(
@@ -164,20 +148,16 @@ class SecurityEmergencyPage extends StatelessWidget {
                               color: _kBlue, size: 32),
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'No emergency alerts',
-                          style: TextStyle(
-                              color     : _kText,
-                              fontSize  : 16,
-                              fontWeight: FontWeight.w600),
-                        ),
+                        const Text('No emergency alerts',
+                            style: TextStyle(
+                                color     : _kText,
+                                fontSize  : 16,
+                                fontWeight: FontWeight.w600)),
                         const SizedBox(height: 4),
-                        const Text(
-                          'All clear — no active emergencies',
-                          style: TextStyle(
-                              color   : _kSubtext,
-                              fontSize: 13),
-                        ),
+                        const Text('All clear — no active emergencies',
+                            style: TextStyle(
+                                color  : _kSubtext,
+                                fontSize: 13)),
                       ],
                     ),
                   );
@@ -188,8 +168,9 @@ class SecurityEmergencyPage extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(20, 24, 20, 36),
                   itemCount: docs.length,
                   itemBuilder: (context, index) {
-                    final emergency = _EmergencyModel.fromDoc(docs[index]);
-                    return _SecurityEmergencyCard(emergency: emergency);
+                    final emergency =
+                        EmergencyModel.fromDoc(docs[index]);
+                    return _StudentEmergencyCard(emergency: emergency);
                   },
                 );
               },
@@ -201,11 +182,11 @@ class SecurityEmergencyPage extends StatelessWidget {
   }
 }
 
-// ── Card ─────────────────────────────────────────────────────────────────────
-class _SecurityEmergencyCard extends StatelessWidget {
-  final _EmergencyModel emergency;
+// ── Student emergency card (view-only, no action buttons) ────────────────────
+class _StudentEmergencyCard extends StatelessWidget {
+  final EmergencyModel emergency;
 
-  const _SecurityEmergencyCard({required this.emergency});
+  const _StudentEmergencyCard({required this.emergency});
 
   @override
   Widget build(BuildContext context) {
@@ -253,42 +234,39 @@ class _SecurityEmergencyCard extends StatelessWidget {
                         color       : style.tint,
                         borderRadius: BorderRadius.circular(13),
                       ),
-                      child: Icon(style.icon, color: style.color, size: 22),
+                      child: Icon(style.icon,
+                          color: style.color, size: 22),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text(
-                        emergency.title,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize  : 14,
-                            color     : _kText),
-                      ),
+                      child: Text(emergency.title,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize  : 14,
+                              color     : _kText)),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color       : style.tint,
+                        color : style.tint,
                         borderRadius: BorderRadius.circular(20),
-                        border      : Border.all(
+                        border: Border.all(
                             color: style.color.withOpacity(0.4)),
                       ),
-                      child: Text(
-                        style.label,
-                        style: TextStyle(
-                            fontSize     : 11,
-                            fontWeight   : FontWeight.w800,
-                            color        : style.color,
-                            letterSpacing: 0.3),
-                      ),
+                      child: Text(style.label,
+                          style: TextStyle(
+                              fontSize  : 11,
+                              fontWeight: FontWeight.w800,
+                              color     : style.color,
+                              letterSpacing: 0.3)),
                     ),
                   ],
                 ),
 
                 const SizedBox(height: 12),
 
-                // Message box
+                // Message
                 Container(
                   width  : double.infinity,
                   padding: const EdgeInsets.all(12),
@@ -297,37 +275,40 @@ class _SecurityEmergencyCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     border      : Border.all(color: _kBorder),
                   ),
-                  child: Text(
-                    emergency.message,
-                    style: const TextStyle(fontSize: 13, color: _kSubtext),
-                  ),
+                  child: Text(emergency.message,
+                      style: const TextStyle(
+                          fontSize: 13, color: _kSubtext)),
                 ),
 
                 const SizedBox(height: 12),
 
-                // Severity chip
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color       : style.tint,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.bar_chart_rounded,
-                          size: 12, color: style.color),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Severity: ${emergency.severity}',
-                        style: TextStyle(
-                            fontSize  : 11,
-                            fontWeight: FontWeight.w600,
-                            color     : style.color),
+                // Severity chip only — no action buttons
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: style.tint,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    ],
-                  ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.bar_chart_rounded,
+                              size: 12, color: style.color),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Severity: ${emergency.severity}',
+                            style: TextStyle(
+                                fontSize  : 11,
+                                fontWeight: FontWeight.w600,
+                                color     : style.color),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -361,7 +342,6 @@ class _SecurityEmergencyCard extends StatelessWidget {
   }
 }
 
-// ── Status style helper ───────────────────────────────────────────────────────
 class _StatusStyle {
   final Color    color;
   final Color    tint;

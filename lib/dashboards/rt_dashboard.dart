@@ -1,126 +1,100 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../core/dashboard_scaffold.dart';
+import '../core/service_tile.dart';
+import '../core/emergency_service_tile.dart';
 import '../staff/profile/staff_profile_page.dart';
-
 import 'student_list_page.dart';
 import 'request_complaint_page.dart';
+import '../dashboards/emergency/emergency_page.dart';
+import '../dashboards/matron/send_notification_page.dart';
 
-import '../dashboards/emergency/emergency_page.dart'; // ✅ ADD
-import '../dashboards/matron/send_notification_page.dart'; // ✅ REUSE
-
-class RTDashboard extends StatelessWidget {
+class RTDashboard extends StatefulWidget {
   const RTDashboard({super.key});
+
+  @override
+  State<RTDashboard> createState() => _RTDashboardState();
+}
+
+class _RTDashboardState extends State<RTDashboard> {
+  static const _userId = 'rt@nila';
+
+  String _userName = '';
+  bool   _loading  = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('staff').doc(_userId).get();
+      setState(() => _userName = doc.data()?['name'] ?? 'RT Staff');
+    } catch (_) {
+      setState(() => _userName = 'RT Staff');
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return DashboardScaffold(
-      dashboardName: "RT Dashboard",
-      userName: "Fahmi Sara",
-
-      // ✅ PROFILE ICON
-      onProfileTap: () {
-        Navigator.push(
-          context,
+      dashboardName: 'RT Dashboard',
+      userName     : _loading ? '...' : _userName,
+      onProfileTap : () => Navigator.push(context,
           MaterialPageRoute(
-            builder: (_) =>
-                const StaffProfilePage(userId: "rt@nila"),
-          ),
-        );
-      },
-
+              builder: (_) => const StaffProfilePage(userId: _userId))),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Services",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF3A6B52),
-            ),
-          ),
+          const Text('Services',
+              style: TextStyle(
+                  fontSize  : 18,
+                  fontWeight: FontWeight.bold,
+                  color     : Color(0xFF1565C0))),
           const SizedBox(height: 16),
 
           GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 14,
-            crossAxisSpacing: 14,
+            crossAxisCount  : 2,
+            shrinkWrap      : true,
+            physics         : const NeverScrollableScrollPhysics(),
+            mainAxisSpacing : 16,
+            crossAxisSpacing: 16,
             children: [
-              // ================= SAME AS WARDEN =================
-
-              _serviceTile(
-                context,
-                icon: Icons.people,
-                title: "Student Records",
-                page: const StudentListPage(),
+              ServiceTile(
+                icon : Icons.people,
+                title: 'Student Records',
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const StudentListPage())),
               ),
-
-              _serviceTile(
-                context,
-                icon: Icons.report_problem,
-                title: "Requests & Complaints",
-                page: const RequestComplaintPage(),
+              ServiceTile(
+                icon : Icons.assignment,
+                title: 'Requests & Complaints',
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(
+                        builder: (_) => const RequestComplaintPage())),
               ),
-
-              // ================= NEW =================
-
-              _serviceTile(
-                context,
-                icon: Icons.warning,
-                title: "Emergency Alerts",
-                page: const EmergencyPage(),
+              ServiceTile(
+                icon : Icons.notifications,
+                title: 'Send Notification',
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(
+                        builder: (_) => const SendNotificationPage())),
               ),
-
-              _serviceTile(
-                context,
-                icon: Icons.notifications,
-                title: "Send Notification",
-                page: const SendNotificationPage(),
+              // ── Turns red when unread ──────────────────────────────────
+              EmergencyServiceTile(
+                userId: _userId,
+                onTap : () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const EmergencyPage())),
               ),
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  // ================= TILE =================
-  Widget _serviceTile(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required Widget page,
-  }) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => page),
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFEAF4EE),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 36, color: const Color(0xFF3A6B52)),
-            const SizedBox(height: 10),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF3A6B52),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
