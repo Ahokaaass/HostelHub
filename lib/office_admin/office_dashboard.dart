@@ -9,6 +9,7 @@ import 'student_records.dart';
 import 'complaints.dart';
 import 'staff_page.dart';
 import 'budget_page.dart';
+import 'mess_management_page.dart'; // ← ADD
 
 class OfficeDashboard extends StatefulWidget {
   const OfficeDashboard({super.key});
@@ -46,64 +47,77 @@ class _OfficeDashboardState extends State<OfficeDashboard> {
   @override
   Widget build(BuildContext context) {
     return DashboardScaffold(
-      dashboardName: "Office Admin Dashboard",
-      userName: _loading ? '...' : _userName,
-
-      onProfileTap: () => Navigator.push(
+      dashboardName: 'Office Admin Dashboard',
+      userName     : _loading ? '...' : _userName,
+      onProfileTap : () => Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => const StaffProfilePage(userId: _userId),
         ),
       ),
-
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "Services",
+            'Services',
             style: TextStyle(
-              fontSize: 18,
+              fontSize  : 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF3A6B52),
+              color     : Color(0xFF3A6B52),
             ),
           ),
           const SizedBox(height: 16),
 
           GridView.count(
-            crossAxisCount:
-                MediaQuery.of(context).size.width > 600 ? 4 : 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: MediaQuery.of(context).size.width > 600
+                ? 4
+                : 2,
+            shrinkWrap      : true,
+            physics         : const NeverScrollableScrollPhysics(),
             crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
+            mainAxisSpacing : 16,
             children: [
               ServiceTile(
-                icon: Icons.people,
-                title: "Student Records",
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const StudentRecordsPage())),
-              ),
-
-              ServiceTile(
-                icon: Icons.chat_bubble_outline,
-                title: "Complaints",
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const ComplaintsPage())),
-              ),
-
-              ServiceTile(
-                icon: Icons.admin_panel_settings,
-                title: "Staff Management",
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const StaffPage())),
-              ),
-
-              ServiceTile(
-                icon: Icons.account_balance_wallet,
-                title: "Budget",
+                icon : Icons.people,
+                title: 'Student Records',
                 onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const BudgetPage())),
+                    MaterialPageRoute(
+                        builder: (_) => const StudentRecordsPage())),
+              ),
+              ServiceTile(
+                icon : Icons.chat_bubble_outline,
+                title: 'Complaints',
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const ComplaintsPage())),
+              ),
+              ServiceTile(
+                icon : Icons.admin_panel_settings,
+                title: 'Staff Management',
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const StaffPage())),
+              ),
+              ServiceTile(
+                icon : Icons.account_balance_wallet,
+                title: 'Budget',
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const BudgetPage())),
+              ),
+              // ── ADD: Mess Management tile ──────────────────────────
+              ServiceTile(
+                icon : Icons.restaurant_menu_rounded,
+                title: 'Mess',
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) =>
+                            const MessManagementPage())),
               ),
             ],
           ),

@@ -18,7 +18,8 @@ class AssignRolePage extends StatefulWidget {
 }
 
 class _AssignRolePageState extends State<AssignRolePage> {
-  final TextEditingController admissionController = TextEditingController();
+  final TextEditingController admissionController =
+      TextEditingController();
 
   Map<String, dynamic>? selectedStudent;
   String selectedRole = 'Hostel Secretary';
@@ -52,22 +53,24 @@ class _AssignRolePageState extends State<AssignRolePage> {
   Future<void> _assignRole() async {
     if (selectedStudent == null) return;
 
-    // Confirmation dialog
     final confirmed = await _confirmDialog(
-      title  : 'Assign Role',
-      message:
-          'Assign "$selectedRole" to ${selectedStudent!['name']}?',
-      confirmLabel: 'Assign',
-      confirmColor: _kBlue,
+      title        : 'Assign Role',
+      message      : 'Assign "$selectedRole" to ${selectedStudent!['name']}?',
+      confirmLabel : 'Assign',
+      confirmColor : _kBlue,
     );
     if (confirmed != true) return;
 
     setState(() => _assigning = true);
 
     final admissionNo = selectedStudent!['admissionNo'];
-    final updateData  = selectedRole == 'Wing Secretary'
-        ? {'isWingSecretary': true}
-        : {'isHostelSecretary': true};
+
+    // ── Added: Mess Secretary support ─────────────────────────
+    final updateData = selectedRole == 'Wing Secretary'
+        ? {'isWingSecretary'  : true}
+        : selectedRole == 'Mess Secretary'
+            ? {'isMessSecretary': true}
+            : {'isHostelSecretary': true};
 
     await FirebaseFirestore.instance
         .collection('users')
@@ -84,7 +87,8 @@ class _AssignRolePageState extends State<AssignRolePage> {
   }
 
   // ── Remove ────────────────────────────────────────────────────────────────
-  Future<void> _removeRole(String admissionNo, String name, String role) async {
+  Future<void> _removeRole(
+      String admissionNo, String name, String role) async {
     final confirmed = await _confirmDialog(
       title        : 'Remove Role',
       message      : 'Remove "$role" from $name?',
@@ -93,9 +97,12 @@ class _AssignRolePageState extends State<AssignRolePage> {
     );
     if (confirmed != true) return;
 
+    // ── Added: Mess Secretary support ─────────────────────────
     final updateData = role == 'Wing Secretary'
-        ? {'isWingSecretary': false}
-        : {'isHostelSecretary': false};
+        ? {'isWingSecretary'  : false}
+        : role == 'Mess Secretary'
+            ? {'isMessSecretary': false}
+            : {'isHostelSecretary': false};
 
     await FirebaseFirestore.instance
         .collection('users')
@@ -115,24 +122,25 @@ class _AssignRolePageState extends State<AssignRolePage> {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor  : Colors.white,
-        surfaceTintColor : Colors.white,
+        backgroundColor : Colors.white,
+        surfaceTintColor: Colors.white,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)),
         title: Text(title,
             style: const TextStyle(
                 fontWeight: FontWeight.w800,
-                fontSize: 17,
-                color: _kText)),
+                fontSize  : 17,
+                color     : _kText)),
         content: Text(message,
-            style: const TextStyle(color: _kSubtext, fontSize: 14)),
+            style: const TextStyle(
+                color: _kSubtext, fontSize: 14)),
         actionsPadding:
             const EdgeInsets.fromLTRB(16, 0, 16, 16),
         actions: [
           OutlinedButton(
             onPressed: () => Navigator.pop(ctx, false),
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: _kBorder),
+              side : const BorderSide(color: _kBorder),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
               padding: const EdgeInsets.symmetric(
@@ -170,17 +178,18 @@ class _AssignRolePageState extends State<AssignRolePage> {
                   ? Icons.error_outline_rounded
                   : Icons.check_circle_outline_rounded,
               color: Colors.white,
-              size: 18,
+              size : 18,
             ),
             const SizedBox(width: 10),
             Expanded(
                 child: Text(msg,
-                    style: const TextStyle(fontWeight: FontWeight.w500))),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w500))),
           ],
         ),
         backgroundColor:
             isError ? Colors.red.shade600 : Colors.green.shade600,
-        behavior       : SnackBarBehavior.floating,
+        behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
@@ -219,10 +228,10 @@ class _AssignRolePageState extends State<AssignRolePage> {
             child: SafeArea(
               bottom: false,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+                padding: const EdgeInsets.fromLTRB(
+                    20, 14, 20, 24),
                 child: Row(
                   children: [
-                    // Back button
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Container(
@@ -230,23 +239,28 @@ class _AssignRolePageState extends State<AssignRolePage> {
                         height: 38,
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.18),
-                          borderRadius: BorderRadius.circular(11),
+                          borderRadius:
+                              BorderRadius.circular(11),
                           border: Border.all(
-                              color: Colors.white.withOpacity(0.3)),
+                              color: Colors.white
+                                  .withOpacity(0.3)),
                         ),
-                        child: const Icon(Icons.arrow_back_rounded,
-                            color: Colors.white, size: 20),
+                        child: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                            size : 20),
                       ),
                     ),
                     const SizedBox(width: 14),
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
                       children: const [
                         Text('Assign Roles',
                             style: TextStyle(
-                                color     : Colors.white,
-                                fontSize  : 20,
-                                fontWeight: FontWeight.w800,
+                                color        : Colors.white,
+                                fontSize     : 20,
+                                fontWeight   : FontWeight.w800,
                                 letterSpacing: -0.3)),
                         SizedBox(height: 2),
                         Text('Manage student role assignments',
@@ -265,30 +279,34 @@ class _AssignRolePageState extends State<AssignRolePage> {
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 36),
+              padding: const EdgeInsets.fromLTRB(
+                  20, 24, 20, 36),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── ASSIGN SECTION ─────────────────────────────────────
+
+                  // ── ASSIGN SECTION ──────────────────────────────────
                   _sectionHeader(
-                      Icons.assignment_ind_rounded, 'Assign New Role'),
+                      Icons.assignment_ind_rounded,
+                      'Assign New Role'),
                   const SizedBox(height: 16),
 
                   _card(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
                       children: [
-                        // Admission number field
                         _fieldLabel('Admission Number'),
                         const SizedBox(height: 6),
                         Row(
                           children: [
                             Expanded(
                               child: _textField(
-                                controller : admissionController,
-                                hint       : 'Enter admission number',
-                                icon       : Icons.badge_rounded,
-                                keyboardType: TextInputType.number,
+                                controller  : admissionController,
+                                hint        : 'Enter admission number',
+                                icon        : Icons.badge_rounded,
+                                keyboardType:
+                                    TextInputType.number,
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -299,22 +317,24 @@ class _AssignRolePageState extends State<AssignRolePage> {
                                     decoration: BoxDecoration(
                                       color: _kBlueTint,
                                       borderRadius:
-                                          BorderRadius.circular(12),
+                                          BorderRadius.circular(
+                                              12),
                                     ),
                                     child: const Center(
                                       child: SizedBox(
                                         width : 20,
                                         height: 20,
-                                        child : CircularProgressIndicator(
-                                            color    : _kBlue,
-                                            strokeWidth: 2),
+                                        child :
+                                            CircularProgressIndicator(
+                                                color      : _kBlue,
+                                                strokeWidth: 2),
                                       ),
                                     ),
                                   )
                                 : _blueBtn(
-                                    icon : Icons.search_rounded,
-                                    label: 'Search',
-                                    onTap: _searchStudent,
+                                    icon   : Icons.search_rounded,
+                                    label  : 'Search',
+                                    onTap  : _searchStudent,
                                     compact: true,
                                   ),
                           ],
@@ -322,22 +342,22 @@ class _AssignRolePageState extends State<AssignRolePage> {
 
                         const SizedBox(height: 16),
 
-                        // Role dropdown
                         _fieldLabel('Select Role'),
                         const SizedBox(height: 6),
                         _dropdown(),
 
-                        // Student card
                         if (selectedStudent != null) ...[
                           const SizedBox(height: 16),
                           _studentPreviewCard(),
                           const SizedBox(height: 16),
                           _assigning
                               ? const Center(
-                                  child: CircularProgressIndicator(
-                                      color: _kBlue))
+                                  child:
+                                      CircularProgressIndicator(
+                                          color: _kBlue))
                               : _blueBtn(
-                                  icon : Icons.check_circle_rounded,
+                                  icon : Icons
+                                      .check_circle_rounded,
                                   label: 'Assign Role',
                                   onTap: _assignRole,
                                 ),
@@ -348,9 +368,10 @@ class _AssignRolePageState extends State<AssignRolePage> {
 
                   const SizedBox(height: 30),
 
-                  // ── CURRENT ROLES SECTION ──────────────────────────────
+                  // ── CURRENT ROLES SECTION ───────────────────────────
                   _sectionHeader(
-                      Icons.people_alt_rounded, 'Current Role Holders'),
+                      Icons.people_alt_rounded,
+                      'Current Role Holders'),
                   const SizedBox(height: 16),
 
                   _RoleSection(
@@ -366,6 +387,15 @@ class _AssignRolePageState extends State<AssignRolePage> {
                     icon    : Icons.groups_2_rounded,
                     onRemove: _removeRole,
                   ),
+                  const SizedBox(height: 12),
+
+                  // ── Added: Mess Secretary role section ──────────────
+                  _RoleSection(
+                    title   : 'Mess Secretary',
+                    field   : 'isMessSecretary',
+                    icon    : Icons.restaurant_menu_rounded,
+                    onRemove: _removeRole,
+                  ),
                 ],
               ),
             ),
@@ -376,7 +406,6 @@ class _AssignRolePageState extends State<AssignRolePage> {
   }
 
   // ── Widgets ───────────────────────────────────────────────────────────────
-
   Widget _card({required Widget child}) => Container(
         width: double.infinity,
         padding: const EdgeInsets.all(18),
@@ -386,9 +415,9 @@ class _AssignRolePageState extends State<AssignRolePage> {
           border: Border.all(color: _kBorder, width: 1.2),
           boxShadow: const [
             BoxShadow(
-                color: Color(0x0C1565C0),
+                color     : Color(0x0C1565C0),
                 blurRadius: 12,
-                offset: Offset(0, 4)),
+                offset    : Offset(0, 4)),
           ],
         ),
         child: child,
@@ -400,16 +429,16 @@ class _AssignRolePageState extends State<AssignRolePage> {
             width : 36,
             height: 36,
             decoration: BoxDecoration(
-                color: _kBlueTint,
+                color       : _kBlueTint,
                 borderRadius: BorderRadius.circular(10)),
             child: Icon(icon, color: _kBlue, size: 18),
           ),
           const SizedBox(width: 10),
           Text(title,
               style: const TextStyle(
-                  fontSize  : 16,
-                  fontWeight: FontWeight.w800,
-                  color     : _kText,
+                  fontSize     : 16,
+                  fontWeight   : FontWeight.w800,
+                  color        : _kText,
                   letterSpacing: -0.2)),
         ],
       );
@@ -432,12 +461,13 @@ class _AssignRolePageState extends State<AssignRolePage> {
         style: const TextStyle(fontSize: 14, color: _kText),
         decoration: InputDecoration(
           hintText     : hint,
-          hintStyle    : const TextStyle(color: _kSubtext, fontSize: 13),
+          hintStyle    : const TextStyle(
+              color: _kSubtext, fontSize: 13),
           prefixIcon   : Icon(icon, color: _kBlue, size: 18),
           filled       : true,
           fillColor    : _kBg,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14, vertical: 14),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide  : const BorderSide(color: _kBorder),
@@ -448,24 +478,28 @@ class _AssignRolePageState extends State<AssignRolePage> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide  : const BorderSide(color: _kBlue, width: 1.5),
+            borderSide  : const BorderSide(
+                color: _kBlue, width: 1.5),
           ),
         ),
       );
 
   Widget _dropdown() => DropdownButtonFormField<String>(
-        value   : selectedRole,
-        style   : const TextStyle(fontSize: 14, color: _kText),
+        value        : selectedRole,
+        style        : const TextStyle(fontSize: 14, color: _kText),
         dropdownColor: Colors.white,
-        icon    : const Icon(Icons.keyboard_arrow_down_rounded,
+        icon         : const Icon(
+            Icons.keyboard_arrow_down_rounded,
             color: _kBlue),
         decoration: InputDecoration(
-          prefixIcon: const Icon(Icons.manage_accounts_rounded,
-              color: _kBlue, size: 18),
+          prefixIcon: const Icon(
+              Icons.manage_accounts_rounded,
+              color: _kBlue,
+              size : 18),
           filled    : true,
           fillColor : _kBg,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14, vertical: 14),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide  : const BorderSide(color: _kBorder),
@@ -476,9 +510,11 @@ class _AssignRolePageState extends State<AssignRolePage> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide  : const BorderSide(color: _kBlue, width: 1.5),
+            borderSide  : const BorderSide(
+                color: _kBlue, width: 1.5),
           ),
         ),
+        // ── Added: Mess Secretary dropdown item ────────────────
         items: const [
           DropdownMenuItem(
               value: 'Hostel Secretary',
@@ -486,6 +522,9 @@ class _AssignRolePageState extends State<AssignRolePage> {
           DropdownMenuItem(
               value: 'Wing Secretary',
               child: Text('Wing Secretary')),
+          DropdownMenuItem(
+              value: 'Mess Secretary',
+              child: Text('Mess Secretary')),
         ],
         onChanged: (v) => setState(() => selectedRole = v!),
       );
@@ -536,7 +575,6 @@ class _AssignRolePageState extends State<AssignRolePage> {
                 ],
               ),
             ),
-            // Clear selection
             GestureDetector(
               onTap: () =>
                   setState(() => selectedStudent = null),
@@ -577,11 +615,11 @@ class _AssignRolePageState extends State<AssignRolePage> {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ROLE SECTION WIDGET
+// ROLE SECTION WIDGET — unchanged, works for all 3 roles automatically
 // ─────────────────────────────────────────────────────────────────────────────
 class _RoleSection extends StatefulWidget {
-  final String title;
-  final String field;
+  final String   title;
+  final String   field;
   final IconData icon;
   final Future<void> Function(String admNo, String name, String role)
       onRemove;
@@ -625,7 +663,6 @@ class _RoleSectionState extends State<_RoleSection> {
           ),
           child: Column(
             children: [
-              // ── Tap header ──────────────────────────────────────────────
               InkWell(
                 onTap: () =>
                     setState(() => _expanded = !_expanded),
@@ -647,7 +684,8 @@ class _RoleSectionState extends State<_RoleSection> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
                           children: [
                             Text(widget.title,
                                 style: const TextStyle(
@@ -672,7 +710,8 @@ class _RoleSectionState extends State<_RoleSection> {
                           color: count > 0
                               ? Colors.green.shade50
                               : Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius:
+                              BorderRadius.circular(20),
                         ),
                         child: Text(
                           '$count',
@@ -698,7 +737,6 @@ class _RoleSectionState extends State<_RoleSection> {
                 ),
               ),
 
-              // ── Expanded list ────────────────────────────────────────────
               if (_expanded) ...[
                 const Divider(height: 1, color: _kBorder),
                 if (count == 0)
@@ -707,9 +745,11 @@ class _RoleSectionState extends State<_RoleSection> {
                     child: Row(
                       children: [
                         Icon(Icons.info_outline_rounded,
-                            color: Colors.grey.shade400, size: 16),
+                            color: Colors.grey.shade400,
+                            size : 16),
                         const SizedBox(width: 8),
-                        const Text('No one assigned to this role',
+                        const Text(
+                            'No one assigned to this role',
                             style: TextStyle(
                                 color  : _kSubtext,
                                 fontSize: 13)),
@@ -718,7 +758,8 @@ class _RoleSectionState extends State<_RoleSection> {
                   )
                 else
                   ...docs.map((doc) {
-                    final d = doc.data() as Map<String, dynamic>;
+                    final d =
+                        doc.data() as Map<String, dynamic>;
                     return Column(
                       children: [
                         Padding(
@@ -732,7 +773,8 @@ class _RoleSectionState extends State<_RoleSection> {
                                 decoration: BoxDecoration(
                                   color: _kBlueTint,
                                   borderRadius:
-                                      BorderRadius.circular(10),
+                                      BorderRadius.circular(
+                                          10),
                                 ),
                                 child: const Icon(
                                     Icons.person_rounded,
@@ -759,7 +801,6 @@ class _RoleSectionState extends State<_RoleSection> {
                                   ],
                                 ),
                               ),
-                              // Remove button
                               GestureDetector(
                                 onTap: () => widget.onRemove(
                                   d['admissionNo'],
@@ -767,28 +808,37 @@ class _RoleSectionState extends State<_RoleSection> {
                                   widget.title,
                                 ),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 6),
+                                  padding:
+                                      const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical  : 6),
                                   decoration: BoxDecoration(
                                     color: Colors.red.shade50,
                                     borderRadius:
                                         BorderRadius.circular(8),
                                     border: Border.all(
-                                        color: Colors.red.shade200),
+                                        color: Colors
+                                            .red.shade200),
                                   ),
                                   child: Row(
-                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisSize:
+                                        MainAxisSize.min,
                                     children: [
-                                      Icon(Icons.remove_circle_outline,
-                                          color: Colors.red.shade500,
-                                          size : 14),
+                                      Icon(
+                                          Icons
+                                              .remove_circle_outline,
+                                          color: Colors
+                                              .red.shade500,
+                                          size: 14),
                                       const SizedBox(width: 4),
                                       Text('Remove',
                                           style: TextStyle(
-                                              color    : Colors.red.shade600,
+                                              color: Colors
+                                                  .red.shade600,
                                               fontSize : 12,
                                               fontWeight:
-                                                  FontWeight.w600)),
+                                                  FontWeight
+                                                      .w600)),
                                     ],
                                   ),
                                 ),
@@ -800,7 +850,7 @@ class _RoleSectionState extends State<_RoleSection> {
                           const Divider(
                               height: 1,
                               indent: 62,
-                              color: _kBorder),
+                              color : _kBorder),
                       ],
                     );
                   }),

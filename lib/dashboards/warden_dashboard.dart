@@ -10,6 +10,7 @@ import 'request_complaint_page.dart';
 import 'assign_role_page.dart';
 import '../dashboards/emergency/emergency_page.dart';
 import '../dashboards/matron/send_notification_page.dart';
+import 'warden_mess_page.dart'; // ← ADD
 
 class WardenDashboard extends StatefulWidget {
   const WardenDashboard({super.key});
@@ -33,8 +34,11 @@ class _WardenDashboardState extends State<WardenDashboard> {
   Future<void> _loadUserName() async {
     try {
       final doc = await FirebaseFirestore.instance
-          .collection('staff').doc(_userId).get();
-      setState(() => _userName = doc.data()?['name'] ?? 'Warden');
+          .collection('staff')
+          .doc(_userId)
+          .get();
+      setState(
+          () => _userName = doc.data()?['name'] ?? 'Warden');
     } catch (_) {
       setState(() => _userName = 'Warden');
     } finally {
@@ -47,9 +51,11 @@ class _WardenDashboardState extends State<WardenDashboard> {
     return DashboardScaffold(
       dashboardName: 'Warden Dashboard',
       userName     : _loading ? '...' : _userName,
-      onProfileTap : () => Navigator.push(context,
+      onProfileTap : () => Navigator.push(
+          context,
           MaterialPageRoute(
-              builder: (_) => const StaffProfilePage(userId: _userId))),
+              builder: (_) =>
+                  const StaffProfilePage(userId: _userId))),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -62,7 +68,8 @@ class _WardenDashboardState extends State<WardenDashboard> {
 
           GridView.count(
             shrinkWrap      : true,
-            physics         : const NeverScrollableScrollPhysics(),
+            physics         :
+                const NeverScrollableScrollPhysics(),
             crossAxisCount  : 2,
             crossAxisSpacing: 16,
             mainAxisSpacing : 16,
@@ -70,34 +77,56 @@ class _WardenDashboardState extends State<WardenDashboard> {
               ServiceTile(
                 icon : Icons.people,
                 title: 'Student Records',
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const StudentListPage())),
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) =>
+                            const StudentListPage())),
               ),
               ServiceTile(
                 icon : Icons.assignment,
                 title: 'Requests & Complaints',
-                onTap: () => Navigator.push(context,
+                onTap: () => Navigator.push(
+                    context,
                     MaterialPageRoute(
-                        builder: (_) => const RequestComplaintPage())),
+                        builder: (_) =>
+                            const RequestComplaintPage())),
               ),
               ServiceTile(
                 icon : Icons.admin_panel_settings,
                 title: 'Assign Roles',
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const AssignRolePage())),
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) =>
+                            const AssignRolePage())),
               ),
               ServiceTile(
                 icon : Icons.notifications,
                 title: 'Send Notification',
-                onTap: () => Navigator.push(context,
+                onTap: () => Navigator.push(
+                    context,
                     MaterialPageRoute(
-                        builder: (_) => const SendNotificationPage())),
+                        builder: (_) =>
+                            const SendNotificationPage())),
               ),
-              // ── Turns red when unread ──────────────────────────────────
+              // ── ADD: Mess tile ─────────────────────────────
+              ServiceTile(
+                icon : Icons.restaurant_menu_rounded,
+                title: 'Mess',
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) =>
+                            const WardenMessPage())),
+              ),
               EmergencyServiceTile(
                 userId: _userId,
-                onTap : () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const EmergencyPage())),
+                onTap : () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) =>
+                            const EmergencyPage())),
               ),
             ],
           ),

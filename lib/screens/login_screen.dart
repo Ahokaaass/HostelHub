@@ -11,6 +11,8 @@ import '../parent/parent_dashboard.dart';
 import '../student/student_data.dart';
 import '../core/session.dart';
 import '../dashboards/security/security_dashboard.dart';
+import '../dashboards/principal/principal_dashboard.dart';
+import '../dashboards/mess/pm/pm_screen.dart'; // ← ADD
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -177,7 +179,7 @@ class _LoginScreenState extends State<LoginScreen>
 
         late Widget page;
 
-        if (role == 'office' || role == 'admin') {
+       if (role == 'office' || role == 'admin') {
           page = const OfficeDashboard();
         } else if (role == 'warden') {
           page = const WardenDashboard();
@@ -189,6 +191,10 @@ class _LoginScreenState extends State<LoginScreen>
           page = const MatronDashboard();
         } else if (role == 'security') {
           page = const SecurityDashboard();
+        } else if (role == 'principal') {
+          page = const PrincipalDashboard();
+        } else if (role == 'purchase_manager') {          // ← ADD
+          page = const PmScreen();          // ← ADD
         } else {
           throw "Unauthorized role";
         }

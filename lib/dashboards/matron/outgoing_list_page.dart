@@ -85,6 +85,15 @@ class OutgoingListPage extends StatelessWidget {
             ),
           ),
 
+
+
+
+
+
+
+
+
+
           // ── List ─────────────────────────────────────────────────────────
           Expanded(
             child: StreamBuilder<QuerySnapshot>(

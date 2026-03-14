@@ -13,28 +13,34 @@ const _kGrey       = Color(0xFF6B7280);
 
 // ── Role config ───────────────────────────────────────────────────────────────
 const _roleLabels = {
-  'matron'  : 'Matron',
-  'rt'      : 'Resident Tutor',
-  'warden'  : 'Warden',
-  'security': 'Security Staff',
+  'principal': 'Principal',       // ← ADDED
+  'matron'   : 'Matron',
+  'rt'       : 'Resident Tutor',
+  'warden'   : 'Warden',
+  'security' : 'Security Staff',
 };
 
 const _roleIcons = {
-  'matron'  : Icons.medical_services_rounded,
-  'rt'      : Icons.school_rounded,
-  'warden'  : Icons.security_rounded,
-  'security': Icons.shield_rounded,
+  'principal': Icons.account_balance_rounded, // ← ADDED
+  'matron'   : Icons.medical_services_rounded,
+  'rt'       : Icons.school_rounded,
+  'warden'   : Icons.security_rounded,
+  'security' : Icons.shield_rounded,
 };
 
 const _roleColors = {
-  'matron'  : Color(0xFF7B1FA2),
-  'rt'      : Color(0xFF1565C0),
-  'warden'  : Color(0xFF2E7D32),
-  'security': Color(0xFFE65100),
+  'principal': Color(0xFF6A1B9A), // deep purple ← ADDED
+  'matron'   : Color(0xFF7B1FA2),
+  'rt'       : Color(0xFF1565C0),
+  'warden'   : Color(0xFF2E7D32),
+  'security' : Color(0xFFE65100),
 };
 
-// Roles that must have a specific hostel (not common)
+// Roles that must pick a specific hostel (not common)
 const _hostelSpecificRoles = ['matron', 'rt'];
+
+// Roles that are always common — no hostel picker needed at all
+const _commonOnlyRoles = ['principal', 'warden']; // ← principal added
 
 // Hostels for dropdown
 const _hostelOptions = [
@@ -59,8 +65,8 @@ class _StaffPageState extends State<StaffPage> {
           style: const TextStyle(fontWeight: FontWeight.w500)),
       backgroundColor: color,
       behavior: SnackBarBehavior.floating,
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12)),
     ));
   }
 
@@ -69,10 +75,11 @@ class _StaffPageState extends State<StaffPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)),
         title: const Text('Remove Staff',
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
+            style: TextStyle(
+                fontWeight: FontWeight.w700, fontSize: 17)),
         content: RichText(
           text: TextSpan(
             style: const TextStyle(
@@ -84,7 +91,8 @@ class _StaffPageState extends State<StaffPage> {
                 style: const TextStyle(
                     fontWeight: FontWeight.w700, color: _kDark),
               ),
-              const TextSpan(text: '? This action cannot be undone.'),
+              const TextSpan(
+                  text: '? This action cannot be undone.'),
             ],
           ),
         ),
@@ -113,7 +121,9 @@ class _StaffPageState extends State<StaffPage> {
           .collection('staff')
           .doc(docId)
           .delete();
-      if (mounted) _showSnack('$name removed.', Colors.red.shade600);
+      if (mounted) {
+        _showSnack('$name removed.', Colors.red.shade600);
+      }
     }
   }
 
@@ -125,10 +135,10 @@ class _StaffPageState extends State<StaffPage> {
         headerSliverBuilder: (_, __) => [
           SliverAppBar(
             expandedHeight: 130,
-            pinned: true,
-            backgroundColor: _kBlue,
-            foregroundColor: Colors.white,
-            elevation: 0,
+            pinned          : true,
+            backgroundColor : _kBlue,
+            foregroundColor : Colors.white,
+            elevation       : 0,
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
@@ -136,23 +146,25 @@ class _StaffPageState extends State<StaffPage> {
                   Container(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                        begin : Alignment.topLeft,
+                        end   : Alignment.bottomRight,
                         colors: [Color(0xFF0D47A1), _kBlueLight],
                       ),
                     ),
                   ),
-                  Positioned(top: -30, right: -30,
+                  Positioned(
+                      top: -30, right: -30,
                       child: _circle(120, 0.07)),
-                  Positioned(bottom: -20, left: -20,
+                  Positioned(
+                      bottom: -20, left: -20,
                       child: _circle(90, 0.05)),
                 ],
               ),
               title: const Text('Staff Management',
                   style: TextStyle(
                       fontWeight: FontWeight.w800,
-                      fontSize: 18,
-                      color: Colors.white)),
+                      fontSize  : 18,
+                      color     : Colors.white)),
               titlePadding:
                   const EdgeInsets.only(left: 20, bottom: 16),
             ),
@@ -167,8 +179,10 @@ class _StaffPageState extends State<StaffPage> {
                       color: Colors.white.withOpacity(0.18),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.person_add_rounded,
-                        color: Colors.white, size: 20),
+                    child: const Icon(
+                        Icons.person_add_rounded,
+                        color: Colors.white,
+                        size : 20),
                   ),
                   onPressed: () => Navigator.push(
                     context,
@@ -184,25 +198,27 @@ class _StaffPageState extends State<StaffPage> {
           children: [
             // ── Role filter chips ───────────────────────────────────
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              padding:
+                  const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
                     _FilterChip(
-                      label: 'All',
+                      label   : 'All',
                       selected: _filterRole == 'all',
-                      onTap: () =>
+                      onTap   : () =>
                           setState(() => _filterRole = 'all'),
                     ),
                     const SizedBox(width: 8),
                     ..._roleLabels.entries.map((e) => Padding(
-                          padding: const EdgeInsets.only(right: 8),
+                          padding:
+                              const EdgeInsets.only(right: 8),
                           child: _FilterChip(
-                            label: e.value,
+                            label   : e.value,
                             selected: _filterRole == e.key,
-                            color: _roleColors[e.key],
-                            onTap: () => setState(
+                            color   : _roleColors[e.key],
+                            onTap   : () => setState(
                                 () => _filterRole = e.key),
                           ),
                         )),
@@ -240,7 +256,7 @@ class _StaffPageState extends State<StaffPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.group_off_rounded,
-                              size: 64,
+                              size : 64,
                               color: _kBlue.withOpacity(0.3)),
                           const SizedBox(height: 12),
                           Text(
@@ -248,7 +264,8 @@ class _StaffPageState extends State<StaffPage> {
                                 ? 'No staff added yet'
                                 : 'No ${_roleLabels[_filterRole] ?? _filterRole} found',
                             style: const TextStyle(
-                                color: _kGrey, fontSize: 15),
+                                color  : _kGrey,
+                                fontSize: 15),
                           ),
                         ],
                       ),
@@ -260,15 +277,16 @@ class _StaffPageState extends State<StaffPage> {
                         16, 4, 16, 24),
                     itemCount: docs.length,
                     itemBuilder: (context, index) {
-                      final d = docs[index].data()
-                          as Map<String, dynamic>;
+                      final d =
+                          docs[index].data()
+                              as Map<String, dynamic>;
                       final docId = docs[index].id;
-                      final name = d['name'] ?? '—';
+                      final name  = d['name'] ?? '—';
 
                       return _StaffCard(
-                        data: d,
-                        onDelete: () =>
-                            _deleteStaff(context, docId, name),
+                        data    : d,
+                        onDelete: () => _deleteStaff(
+                            context, docId, name),
                       );
                     },
                   );
@@ -283,20 +301,24 @@ class _StaffPageState extends State<StaffPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const AddStaffPage()),
+          MaterialPageRoute(
+              builder: (_) => const AddStaffPage()),
         ),
         backgroundColor: _kBlue,
         foregroundColor: Colors.white,
         elevation: 2,
-        icon: const Icon(Icons.person_add_rounded),
+        icon : const Icon(Icons.person_add_rounded),
         label: const Text('Add Staff',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+            style:
+                TextStyle(fontWeight: FontWeight.w700)),
       ),
     );
   }
 
-  static Widget _circle(double size, double opacity) => Container(
-        width: size, height: size,
+  static Widget _circle(double size, double opacity) =>
+      Container(
+        width : size,
+        height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: Colors.white.withOpacity(opacity),
@@ -307,33 +329,38 @@ class _StaffPageState extends State<StaffPage> {
 // ── Staff Card ────────────────────────────────────────────────────────────────
 class _StaffCard extends StatelessWidget {
   final Map<String, dynamic> data;
-  final VoidCallback onDelete;
-  const _StaffCard({required this.data, required this.onDelete});
+  final VoidCallback         onDelete;
+  const _StaffCard(
+      {required this.data, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
     final name   = data['name']   ?? '—';
     final role   = data['role']   ?? 'unknown';
     final hostel = data['hostel'] ?? 'Common';
-    final userId = data['userId'] ?? data['staffId'] ?? '—';
-    final phone  = data['phone']  ?? '—';
+    final userId =
+        data['userId'] ?? data['staffId'] ?? '—';
+    final phone = data['phone'] ?? '—';
 
-    final roleLabel = _roleLabels[role]  ?? role.toUpperCase();
-    final roleIcon  = _roleIcons[role]   ?? Icons.badge_rounded;
-    final roleColor = _roleColors[role]  ?? _kBlue;
+    final roleLabel =
+        _roleLabels[role] ?? role.toUpperCase();
+    final roleIcon  =
+        _roleIcons[role]  ?? Icons.badge_rounded;
+    final roleColor = _roleColors[role] ?? _kBlue;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: _kBlueBorder.withOpacity(0.5), width: 1),
+        border: Border.all(
+            color: _kBlueBorder.withOpacity(0.5),
+            width: 1),
         boxShadow: const [
           BoxShadow(
-              color: Color(0x0A1565C0),
+              color     : Color(0x0A1565C0),
               blurRadius: 10,
-              offset: Offset(0, 3)),
+              offset    : Offset(0, 3)),
         ],
       ),
       child: Padding(
@@ -343,13 +370,14 @@ class _StaffCard extends StatelessWidget {
           children: [
             // Role icon avatar
             Container(
-              width: 48,
+              width : 48,
               height: 48,
               decoration: BoxDecoration(
                 color: roleColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(roleIcon, color: roleColor, size: 22),
+              child:
+                  Icon(roleIcon, color: roleColor, size: 22),
             ),
             const SizedBox(width: 12),
 
@@ -362,10 +390,11 @@ class _StaffCard extends StatelessWidget {
                     Expanded(
                       child: Text(name,
                           style: const TextStyle(
-                              fontSize: 15,
+                              fontSize  : 15,
                               fontWeight: FontWeight.w700,
-                              color: _kDark),
-                          overflow: TextOverflow.ellipsis),
+                              color     : _kDark),
+                          overflow:
+                              TextOverflow.ellipsis),
                     ),
                     const SizedBox(width: 8),
                     // Role badge
@@ -374,13 +403,14 @@ class _StaffCard extends StatelessWidget {
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: roleColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius:
+                            BorderRadius.circular(6),
                       ),
                       child: Text(roleLabel,
                           style: TextStyle(
-                              fontSize: 11,
+                              fontSize  : 11,
                               fontWeight: FontWeight.w700,
-                              color: roleColor)),
+                              color     : roleColor)),
                     ),
                   ]),
                   const SizedBox(height: 5),
@@ -399,7 +429,7 @@ class _StaffCard extends StatelessWidget {
             GestureDetector(
               onTap: onDelete,
               child: Container(
-                width: 34,
+                width : 34,
                 height: 34,
                 decoration: BoxDecoration(
                   color: Colors.red.shade50,
@@ -424,8 +454,8 @@ class _StaffCard extends StatelessWidget {
           Expanded(
             child: Text(text,
                 style: const TextStyle(
-                    fontSize: 12,
-                    color: _kGrey,
+                    fontSize  : 12,
+                    color     : _kGrey,
                     fontWeight: FontWeight.w500),
                 overflow: TextOverflow.ellipsis),
           ),
@@ -435,10 +465,11 @@ class _StaffCard extends StatelessWidget {
 
 // ── Filter Chip ───────────────────────────────────────────────────────────────
 class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final Color? color;
+  final String     label;
+  final bool       selected;
+  final Color?     color;
   final VoidCallback onTap;
+
   const _FilterChip({
     required this.label,
     required this.selected,
@@ -459,17 +490,20 @@ class _FilterChip extends StatelessWidget {
           color: selected ? c : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-              color: selected ? c : _kBlueBorder, width: 1.2),
+              color: selected ? c : _kBlueBorder,
+              width: 1.2),
           boxShadow: selected
-              ? [BoxShadow(
-                  color: c.withOpacity(0.25),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3))]
+              ? [
+                  BoxShadow(
+                      color     : c.withOpacity(0.25),
+                      blurRadius: 8,
+                      offset    : const Offset(0, 3))
+                ]
               : [],
         ),
         child: Text(label,
             style: TextStyle(
-                fontSize: 13,
+                fontSize  : 13,
                 fontWeight: FontWeight.w600,
                 color: selected ? Colors.white : _kGrey)),
       ),
@@ -496,31 +530,54 @@ class _AddStaffPageState extends State<AddStaffPage> {
   String? _hostel;
   bool _saving = false;
 
-  // Roles that are restricted to a specific hostel (no Common option)
-  bool get _hostelSpecific =>
+  // ── Role classification helpers ───────────────────────────────────────────
+
+  /// Principal & Warden → always 'common', no dropdown shown
+  bool get _isCommonOnly =>
+      _role != null && _commonOnlyRoles.contains(_role);
+
+  /// Matron & RT → hostel dropdown shown but only Nila / Kabani
+  bool get _isHostelSpecific =>
       _role != null && _hostelSpecificRoles.contains(_role);
 
-  // Available hostel options based on role
+  /// Security → full dropdown (Nila / Kabani / Common)
+  bool get _needsHostelDropdown =>
+      _role != null && !_isCommonOnly;
+
   List<Map<String, String>> get _availableHostels {
-    if (_hostelSpecific) {
-      // Matron & RT: only specific hostels
+    if (_isHostelSpecific) {
       return [
         {'value': 'nila',   'label': 'Nila'},
         {'value': 'kabani', 'label': 'Kabani'},
       ];
     }
-    // Warden & Security: all options including Common
+    // Security: all 3 options
     return _hostelOptions
         .map((e) => Map<String, String>.from(e))
         .toList();
   }
 
-  bool get _needsHostel => _role != null;
+  // ── userId generation ─────────────────────────────────────────────────────
+  String _buildUserId() {
+    switch (_role) {
+      case 'principal':
+        return 'principal';          // single principal, fixed id
+      case 'warden':
+        return 'warden';             // single warden
+      case 'security':
+        return _hostel == 'common'
+            ? 'security'
+            : 'security@${_hostel!}';
+      default:
+        // matron, rt → hostel-specific
+        return '${_role!}@${_hostel!}';
+    }
+  }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_needsHostel && _hostel == null) {
+    if (_needsHostelDropdown && _hostel == null) {
       _showSnack('Please select a hostel.', Colors.red.shade600);
       return;
     }
@@ -528,15 +585,14 @@ class _AddStaffPageState extends State<AddStaffPage> {
     setState(() => _saving = true);
 
     try {
-      final phone  = _phone.text.trim();
-      final last4  = phone.substring(phone.length - 4);
-      final userId = _role == 'warden'
-          ? 'warden'
-          : _role == 'security'
-              ? _hostel == 'common'
-                  ? 'security'
-                  : 'security@${_hostel!}'
-              : '${_role!}@${_hostel!}';
+      final phone    = _phone.text.trim();
+      final last4    = phone.substring(phone.length - 4);
+
+      // For common-only roles hostel is always 'common'
+      final hostelVal =
+          _isCommonOnly ? 'common' : _hostel;
+
+      final userId   = _buildUserId();
       final password = '${_role!}@$last4';
 
       await FirebaseFirestore.instance
@@ -548,7 +604,7 @@ class _AddStaffPageState extends State<AddStaffPage> {
         'email'    : _email.text.trim(),
         'staffId'  : _staffId.text.trim(),
         'role'     : _role,
-        'hostel'   : _hostel,
+        'hostel'   : hostelVal,
         'userId'   : userId,
         'password' : password,
         'createdAt': FieldValue.serverTimestamp(),
@@ -569,11 +625,12 @@ class _AddStaffPageState extends State<AddStaffPage> {
   void _showSnack(String msg, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg,
-          style: const TextStyle(fontWeight: FontWeight.w500)),
+          style: const TextStyle(
+              fontWeight: FontWeight.w500)),
       backgroundColor: color,
       behavior: SnackBarBehavior.floating,
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12)),
     ));
   }
 
@@ -585,7 +642,8 @@ class _AddStaffPageState extends State<AddStaffPage> {
             borderRadius: BorderRadius.circular(20)),
         title: Row(children: [
           Container(
-            width: 36, height: 36,
+            width : 36,
+            height: 36,
             decoration: BoxDecoration(
               color: Colors.green.shade50,
               borderRadius: BorderRadius.circular(10),
@@ -601,7 +659,7 @@ class _AddStaffPageState extends State<AddStaffPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _CredRow(label: 'User ID', value: userId),
+            _CredRow(label: 'User ID',   value: userId),
             const SizedBox(height: 8),
             _CredRow(label: 'Password', value: password),
           ],
@@ -628,8 +686,10 @@ class _AddStaffPageState extends State<AddStaffPage> {
 
   @override
   void dispose() {
-    _name.dispose(); _phone.dispose();
-    _email.dispose(); _staffId.dispose();
+    _name.dispose();
+    _phone.dispose();
+    _email.dispose();
+    _staffId.dispose();
     super.dispose();
   }
 
@@ -653,41 +713,50 @@ class _AddStaffPageState extends State<AddStaffPage> {
 
             // ── Role selector ───────────────────────────────────────
             _SectionHeader(
-                icon: Icons.badge_rounded, title: 'Role'),
+                icon : Icons.badge_rounded,
+                title: 'Role'),
             const SizedBox(height: 12),
 
-            // Role grid
             GridView.count(
-              crossAxisCount: 2,
+              crossAxisCount  : 2,
               crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
+              mainAxisSpacing : 10,
               childAspectRatio: 2.8,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap      : true,
+              physics         :
+                  const NeverScrollableScrollPhysics(),
               children: _roleLabels.entries.map((e) {
                 final selected = _role == e.key;
-                final color = _roleColors[e.key] ?? _kBlue;
-                final icon  = _roleIcons[e.key]  ?? Icons.badge_rounded;
+                final color =
+                    _roleColors[e.key] ?? _kBlue;
+                final icon =
+                    _roleIcons[e.key] ?? Icons.badge_rounded;
                 return GestureDetector(
                   onTap: () => setState(() {
                     _role   = e.key;
-                    _hostel = null; // reset hostel on role change
+                    _hostel = null; // reset on role change
                   }),
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
+                    duration:
+                        const Duration(milliseconds: 180),
                     decoration: BoxDecoration(
-                      color: selected
-                          ? color
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      color: selected ? color : Colors.white,
+                      borderRadius:
+                          BorderRadius.circular(12),
                       border: Border.all(
-                          color: selected ? color : _kBlueBorder,
+                          color: selected
+                              ? color
+                              : _kBlueBorder,
                           width: 1.2),
                       boxShadow: selected
-                          ? [BoxShadow(
-                              color: color.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3))]
+                          ? [
+                              BoxShadow(
+                                  color: color
+                                      .withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset:
+                                      const Offset(0, 3))
+                            ]
                           : [],
                     ),
                     child: Row(
@@ -695,14 +764,14 @@ class _AddStaffPageState extends State<AddStaffPage> {
                           MainAxisAlignment.center,
                       children: [
                         Icon(icon,
-                            size: 16,
+                            size : 16,
                             color: selected
                                 ? Colors.white
                                 : color),
                         const SizedBox(width: 6),
                         Text(e.value,
                             style: TextStyle(
-                                fontSize: 13,
+                                fontSize  : 13,
                                 fontWeight: FontWeight.w600,
                                 color: selected
                                     ? Colors.white
@@ -714,12 +783,43 @@ class _AddStaffPageState extends State<AddStaffPage> {
               }).toList(),
             ),
 
-            const SizedBox(height: 24),
+            // ── Common-only info banner (Principal / Warden) ────────
+            if (_isCommonOnly) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5E9),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                      color: const Color(0xFFA5D6A7),
+                      width: 1),
+                ),
+                child: Row(children: [
+                  const Icon(Icons.info_outline_rounded,
+                      color: Color(0xFF2E7D32), size: 18),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      '${_roleLabels[_role]} is a common role '
+                      'and applies to both hostels.',
+                      style: const TextStyle(
+                          fontSize  : 13,
+                          color     : Color(0xFF2E7D32),
+                          fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                ]),
+              ),
+            ],
 
-            // ── Hostel selector ─────────────────────────────────────
-            if (_needsHostel) ...[
+            // ── Hostel selector (only for non-common roles) ─────────
+            if (_needsHostelDropdown) ...[
+              const SizedBox(height: 24),
               _SectionHeader(
-                  icon: Icons.apartment_rounded, title: 'Hostel'),
+                  icon : Icons.apartment_rounded,
+                  title: 'Hostel'),
               const SizedBox(height: 12),
               _FieldCard(children: [
                 Padding(
@@ -727,13 +827,17 @@ class _AddStaffPageState extends State<AddStaffPage> {
                       horizontal: 16, vertical: 4),
                   child: Row(children: [
                     Container(
-                      width: 32, height: 32,
+                      width : 32,
+                      height: 32,
                       decoration: BoxDecoration(
                         color: _kBlueTint,
-                        borderRadius: BorderRadius.circular(9),
+                        borderRadius:
+                            BorderRadius.circular(9),
                       ),
-                      child: const Icon(Icons.apartment_rounded,
-                          color: _kBlue, size: 16),
+                      child: const Icon(
+                          Icons.apartment_rounded,
+                          color: _kBlue,
+                          size : 16),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -741,20 +845,21 @@ class _AddStaffPageState extends State<AddStaffPage> {
                         value: _hostel,
                         decoration: const InputDecoration(
                           labelText: 'Select Hostel',
-                          labelStyle:
-                              TextStyle(fontSize: 13, color: _kGrey),
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          contentPadding:
-                              EdgeInsets.symmetric(vertical: 12),
+                          labelStyle: TextStyle(
+                              fontSize: 13, color: _kGrey),
+                          border        : InputBorder.none,
+                          enabledBorder : InputBorder.none,
+                          focusedBorder : InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 12),
                         ),
                         items: _availableHostels
-                            .map((h) => DropdownMenuItem<String>(
+                            .map((h) =>
+                                DropdownMenuItem<String>(
                                   value: h['value'],
                                   child: Text(h['label']!,
                                       style: const TextStyle(
-                                          fontSize: 14,
+                                          fontSize  : 14,
                                           fontWeight:
                                               FontWeight.w600,
                                           color: _kDark)),
@@ -774,54 +879,63 @@ class _AddStaffPageState extends State<AddStaffPage> {
                   ]),
                 ),
               ]),
-              const SizedBox(height: 24),
             ],
+
+            const SizedBox(height: 24),
 
             // ── Staff details ───────────────────────────────────────
             _SectionHeader(
-                icon: Icons.person_rounded, title: 'Staff Details'),
+                icon : Icons.person_rounded,
+                title: 'Staff Details'),
             const SizedBox(height: 12),
             _FieldCard(children: [
               _Field(
                 controller: _name,
-                label: 'Full Name',
-                icon: Icons.person_rounded,
-                validator: (v) => (v == null || v.isEmpty)
-                    ? 'Name is required'
-                    : null,
+                label     : 'Full Name',
+                icon      : Icons.person_rounded,
+                validator : (v) =>
+                    (v == null || v.isEmpty)
+                        ? 'Name is required'
+                        : null,
               ),
               _divider(),
               _Field(
                 controller: _staffId,
-                label: 'Staff ID',
-                icon: Icons.badge_rounded,
-                validator: (v) => (v == null || v.isEmpty)
-                    ? 'Staff ID is required'
-                    : null,
+                label     : 'Staff ID',
+                icon      : Icons.badge_rounded,
+                validator : (v) =>
+                    (v == null || v.isEmpty)
+                        ? 'Staff ID is required'
+                        : null,
               ),
               _divider(),
               _Field(
-                controller: _phone,
-                label: 'Phone Number',
-                icon: Icons.phone_rounded,
-                keyboardType: TextInputType.phone,
+                controller    : _phone,
+                label         : 'Phone Number',
+                icon          : Icons.phone_rounded,
+                keyboardType  : TextInputType.phone,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(10),
                 ],
-                validator: (v) => (v == null || v.length != 10)
-                    ? 'Enter a valid 10-digit number'
-                    : null,
+                validator: (v) =>
+                    (v == null || v.length != 10)
+                        ? 'Enter a valid 10-digit number'
+                        : null,
               ),
               _divider(),
               _Field(
-                controller: _email,
-                label: 'Email Address',
-                icon: Icons.email_rounded,
+                controller  : _email,
+                label       : 'Email Address',
+                icon        : Icons.email_rounded,
                 keyboardType: TextInputType.emailAddress,
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Email is required';
-                  if (!v.contains('@')) return 'Enter a valid email';
+                  if (v == null || v.isEmpty) {
+                    return 'Email is required';
+                  }
+                  if (!v.contains('@')) {
+                    return 'Enter a valid email';
+                  }
                   return null;
                 },
               ),
@@ -838,22 +952,27 @@ class _AddStaffPageState extends State<AddStaffPage> {
                   color: Colors.orange.shade50,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: Colors.orange.shade200, width: 1),
+                      color: Colors.orange.shade200,
+                      width: 1),
                 ),
                 child: Row(children: [
                   Icon(Icons.info_outline_rounded,
-                      color: Colors.orange.shade700, size: 18),
+                      color: Colors.orange.shade700,
+                      size : 18),
                   const SizedBox(width: 10),
-                  Text('Please select a role above to proceed.',
+                  Expanded(
+                    child: Text(
+                      'Please select a role above to proceed.',
                       style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.orange.shade700,
-                          fontWeight: FontWeight.w500)),
+                          fontSize  : 13,
+                          color     : Colors.orange.shade700,
+                          fontWeight: FontWeight.w500),
+                    ),
+                  ),
                 ]),
               ),
 
             if (_role != null) ...[
-              // Save button
               SizedBox(
                 height: 54,
                 child: ElevatedButton(
@@ -865,21 +984,27 @@ class _AddStaffPageState extends State<AddStaffPage> {
                         _kBlue.withOpacity(0.45),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
+                        borderRadius:
+                            BorderRadius.circular(16)),
                   ),
                   child: _saving
                       ? const SizedBox(
-                          width: 22, height: 22,
-                          child: CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2.5))
+                          width : 22,
+                          height: 22,
+                          child : CircularProgressIndicator(
+                              color      : Colors.white,
+                              strokeWidth: 2.5))
                       : const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment:
+                              MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.person_add_rounded, size: 20),
+                            Icon(
+                                Icons.person_add_rounded,
+                                size: 20),
                             SizedBox(width: 8),
                             Text('Add Staff Member',
                                 style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize  : 16,
                                     fontWeight: FontWeight.w700)),
                           ],
                         ),
@@ -897,11 +1022,13 @@ class _AddStaffPageState extends State<AddStaffPage> {
                   side: const BorderSide(
                       color: _kBlueBorder, width: 1.5),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                      borderRadius:
+                          BorderRadius.circular(16)),
                 ),
                 child: const Text('Cancel',
                     style: TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.w600)),
+                        fontSize  : 15,
+                        fontWeight: FontWeight.w600)),
               ),
             ),
             const SizedBox(height: 36),
@@ -915,7 +1042,7 @@ class _AddStaffPageState extends State<AddStaffPage> {
       height: 1, indent: 56, color: Color(0xFFF0F4FF));
 }
 
-// ── Credential Row (in success dialog) ───────────────────────────────────────
+// ── Credential Row ────────────────────────────────────────────────────────────
 class _CredRow extends StatelessWidget {
   final String label, value;
   const _CredRow({required this.label, required this.value});
@@ -932,21 +1059,20 @@ class _CredRow extends StatelessWidget {
         child: Row(children: [
           Text('$label: ',
               style: const TextStyle(
-                  fontSize: 13,
-                  color: _kGrey,
+                  fontSize  : 13,
+                  color     : _kGrey,
                   fontWeight: FontWeight.w500)),
           Expanded(
             child: Text(value,
                 style: const TextStyle(
-                    fontSize: 13,
+                    fontSize  : 13,
                     fontWeight: FontWeight.w700,
-                    color: _kDark),
+                    color     : _kDark),
                 overflow: TextOverflow.ellipsis),
           ),
           GestureDetector(
-            onTap: () {
-              Clipboard.setData(ClipboardData(text: value));
-            },
+            onTap: () =>
+                Clipboard.setData(ClipboardData(text: value)),
             child: const Icon(Icons.copy_rounded,
                 size: 15, color: _kBlue),
           ),
@@ -957,8 +1083,9 @@ class _CredRow extends StatelessWidget {
 // ── Section Header ────────────────────────────────────────────────────────────
 class _SectionHeader extends StatelessWidget {
   final IconData icon;
-  final String title;
-  const _SectionHeader({required this.icon, required this.title});
+  final String   title;
+  const _SectionHeader(
+      {required this.icon, required this.title});
 
   @override
   Widget build(BuildContext context) => Row(children: [
@@ -966,9 +1093,9 @@ class _SectionHeader extends StatelessWidget {
         const SizedBox(width: 8),
         Text(title,
             style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-                color: _kDark,
+                fontSize     : 14,
+                fontWeight   : FontWeight.w800,
+                color        : _kDark,
                 letterSpacing: -0.2)),
       ]);
 }
@@ -987,9 +1114,9 @@ class _FieldCard extends StatelessWidget {
               color: _kBlueBorder.withOpacity(0.5), width: 1),
           boxShadow: const [
             BoxShadow(
-                color: Color(0x0A1565C0),
+                color     : Color(0x0A1565C0),
                 blurRadius: 14,
-                offset: Offset(0, 4)),
+                offset    : Offset(0, 4)),
           ],
         ),
         child: Column(children: children),
@@ -998,32 +1125,34 @@ class _FieldCard extends StatelessWidget {
 
 // ── Editable Field ────────────────────────────────────────────────────────────
 class _Field extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final IconData icon;
-  final TextInputType keyboardType;
-  final List<TextInputFormatter>? inputFormatters;
-  final String? Function(String?)? validator;
+  final TextEditingController          controller;
+  final String                         label;
+  final IconData                       icon;
+  final TextInputType                  keyboardType;
+  final List<TextInputFormatter>?      inputFormatters;
+  final String? Function(String?)?     validator;
 
   const _Field({
     required this.controller,
     required this.label,
     required this.icon,
-    this.keyboardType = TextInputType.text,
+    this.keyboardType    = TextInputType.text,
     this.inputFormatters,
     this.validator,
   });
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: const EdgeInsets.symmetric(
+            horizontal: 16, vertical: 4),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 32, height: 32,
+              width : 32,
+              height: 32,
               decoration: BoxDecoration(
-                color: _kBlueTint,
+                color       : _kBlueTint,
                 borderRadius: BorderRadius.circular(9),
               ),
               child: Icon(icon, color: _kBlue, size: 16),
@@ -1031,26 +1160,27 @@ class _Field extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: TextFormField(
-                controller: controller,
-                keyboardType: keyboardType,
+                controller     : controller,
+                keyboardType   : keyboardType,
                 inputFormatters: inputFormatters,
-                validator: validator,
+                validator      : validator,
                 style: const TextStyle(
-                    fontSize: 14,
+                    fontSize  : 14,
                     fontWeight: FontWeight.w600,
-                    color: _kDark),
+                    color     : _kDark),
                 decoration: InputDecoration(
-                  labelText: label,
-                  labelStyle:
-                      const TextStyle(fontSize: 13, color: _kGrey),
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  errorBorder: InputBorder.none,
+                  labelText : label,
+                  labelStyle: const TextStyle(
+                      fontSize: 13, color: _kGrey),
+                  border            : InputBorder.none,
+                  enabledBorder     : InputBorder.none,
+                  focusedBorder     : InputBorder.none,
+                  errorBorder       : InputBorder.none,
                   focusedErrorBorder: InputBorder.none,
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 12),
-                  errorStyle: const TextStyle(fontSize: 11),
+                  contentPadding    : const EdgeInsets.symmetric(
+                      vertical: 12),
+                  errorStyle:
+                      const TextStyle(fontSize: 11),
                 ),
               ),
             ),
