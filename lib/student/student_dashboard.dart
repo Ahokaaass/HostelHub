@@ -172,6 +172,15 @@ class StudentDashboard extends StatelessWidget {
                             builder: (_) =>
                                 const StudentMessPage())),
                   ),
+
+                  ServiceTile(
+                    icon: Icons.search_rounded,
+                    title: 'Lost & Found',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LostFoundHome()),
+                    ),
+                  ),
                   EmergencyServiceTile(
                     userId: StudentData.admissionNo,
                     onTap : () => Navigator.push(
