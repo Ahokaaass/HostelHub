@@ -10,7 +10,7 @@ import 'request_complaint_page.dart';
 import 'assign_role_page.dart';
 import '../dashboards/emergency/emergency_page.dart';
 import '../dashboards/matron/send_notification_page.dart';
-import 'warden_mess_page.dart'; // ← ADD
+import 'warden_mess_page.dart';
 
 class WardenDashboard extends StatefulWidget {
   const WardenDashboard({super.key});
@@ -37,8 +37,7 @@ class _WardenDashboardState extends State<WardenDashboard> {
           .collection('staff')
           .doc(_userId)
           .get();
-      setState(
-          () => _userName = doc.data()?['name'] ?? 'Warden');
+      setState(() => _userName = doc.data()?['name'] ?? 'Warden');
     } catch (_) {
       setState(() => _userName = 'Warden');
     } finally {
@@ -54,8 +53,7 @@ class _WardenDashboardState extends State<WardenDashboard> {
       onProfileTap : () => Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (_) =>
-                  const StaffProfilePage(userId: _userId))),
+              builder: (_) => const StaffProfilePage(userId: _userId))),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -68,8 +66,7 @@ class _WardenDashboardState extends State<WardenDashboard> {
 
           GridView.count(
             shrinkWrap      : true,
-            physics         :
-                const NeverScrollableScrollPhysics(),
+            physics         : const NeverScrollableScrollPhysics(),
             crossAxisCount  : 2,
             crossAxisSpacing: 16,
             mainAxisSpacing : 16,
@@ -80,8 +77,7 @@ class _WardenDashboardState extends State<WardenDashboard> {
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) =>
-                            const StudentListPage())),
+                        builder: (_) => const StudentListPage())),
               ),
               ServiceTile(
                 icon : Icons.assignment,
@@ -89,8 +85,7 @@ class _WardenDashboardState extends State<WardenDashboard> {
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) =>
-                            const RequestComplaintPage())),
+                        builder: (_) => const RequestComplaintPage())),
               ),
               ServiceTile(
                 icon : Icons.admin_panel_settings,
@@ -98,8 +93,7 @@ class _WardenDashboardState extends State<WardenDashboard> {
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) =>
-                            const AssignRolePage())),
+                        builder: (_) => const AssignRolePage())),
               ),
               ServiceTile(
                 icon : Icons.notifications,
@@ -107,26 +101,22 @@ class _WardenDashboardState extends State<WardenDashboard> {
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) =>
-                            const SendNotificationPage())),
+                        builder: (_) => const SendNotificationPage())),
               ),
-              // ── ADD: Mess tile ─────────────────────────────
               ServiceTile(
                 icon : Icons.restaurant_menu_rounded,
                 title: 'Mess',
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) =>
-                            const WardenMessPage())),
+                        builder: (_) => const WardenMessPage())),
               ),
               EmergencyServiceTile(
                 userId: _userId,
                 onTap : () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) =>
-                            const EmergencyPage())),
+                        builder: (_) => const EmergencyPage())),
               ),
             ],
           ),

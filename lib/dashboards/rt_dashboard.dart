@@ -6,10 +6,11 @@ import '../core/service_tile.dart';
 import '../core/emergency_service_tile.dart';
 import '../staff/profile/staff_profile_page.dart';
 import 'student_list_page.dart';
-import 'request_complaint_page.dart';
+import 'request_list_page.dart';
+import 'rt_complaint_list_page.dart';
 import '../dashboards/emergency/emergency_page.dart';
 import '../dashboards/matron/send_notification_page.dart';
-import 'rt_mess_page.dart'; // ← ADD
+import 'rt_mess_page.dart';
 
 class RTDashboard extends StatefulWidget {
   const RTDashboard({super.key});
@@ -36,8 +37,7 @@ class _RTDashboardState extends State<RTDashboard> {
           .collection('staff')
           .doc(_userId)
           .get();
-      setState(
-          () => _userName = doc.data()?['name'] ?? 'RT Staff');
+      setState(() => _userName = doc.data()?['name'] ?? 'RT Staff');
     } catch (_) {
       setState(() => _userName = 'RT Staff');
     } finally {
@@ -53,8 +53,7 @@ class _RTDashboardState extends State<RTDashboard> {
       onProfileTap : () => Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (_) =>
-                  const StaffProfilePage(userId: _userId))),
+              builder: (_) => const StaffProfilePage(userId: _userId))),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -68,8 +67,7 @@ class _RTDashboardState extends State<RTDashboard> {
           GridView.count(
             crossAxisCount  : 2,
             shrinkWrap      : true,
-            physics         :
-                const NeverScrollableScrollPhysics(),
+            physics         : const NeverScrollableScrollPhysics(),
             mainAxisSpacing : 16,
             crossAxisSpacing: 16,
             children: [
@@ -79,8 +77,7 @@ class _RTDashboardState extends State<RTDashboard> {
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) =>
-                            const StudentListPage())),
+                        builder: (_) => const StudentListPage())),
               ),
               ServiceTile(
                 icon : Icons.assignment,
@@ -88,8 +85,7 @@ class _RTDashboardState extends State<RTDashboard> {
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) =>
-                            const RequestComplaintPage())),
+                        builder: (_) => const _RequestsComplaintsMenu())),
               ),
               ServiceTile(
                 icon : Icons.notifications,
@@ -97,28 +93,64 @@ class _RTDashboardState extends State<RTDashboard> {
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) =>
-                            const SendNotificationPage())),
+                        builder: (_) => const SendNotificationPage())),
               ),
-              // ── ADD: Mess tile ─────────────────────────────
               ServiceTile(
                 icon : Icons.restaurant_menu_rounded,
                 title: 'Mess',
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) =>
-                            const RtMessPage())),
+                        builder: (_) => const RtMessPage())),
               ),
               EmergencyServiceTile(
                 userId: _userId,
                 onTap : () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) =>
-                            const EmergencyPage())),
+                        builder: (_) => const EmergencyPage())),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Requests & Complaints Menu ────────────────────────────────────────────────
+class _RequestsComplaintsMenu extends StatelessWidget {
+  const _RequestsComplaintsMenu();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Requests & Complaints')),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          Card(
+            child: ListTile(
+              title   : const Text('View Requests'),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap   : () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) =>
+                        const RequestListPage(role: ViewerRole.rt)),
+              ),
+            ),
+          ),
+          Card(
+            child: ListTile(
+              title   : const Text('View Complaints'),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap   : () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const RtComplaintListPage()),
+              ),
+            ),
           ),
         ],
       ),

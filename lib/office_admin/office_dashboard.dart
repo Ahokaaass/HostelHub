@@ -91,7 +91,7 @@ class _OfficeDashboardState extends State<OfficeDashboard> {
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => const ComplaintsPage())),
+                        builder: (_) => const OfficeAdminComplaintPage())),
               ),
               ServiceTile(
                 icon : Icons.admin_panel_settings,

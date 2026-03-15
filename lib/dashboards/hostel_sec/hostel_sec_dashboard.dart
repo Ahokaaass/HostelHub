@@ -4,7 +4,6 @@ import '../../core/service_tile.dart';
 import '../matron/attendance_view_page.dart';
 import 'hostel_sec_complaints_page.dart';
 
-// ── Blue palette ──────────────────────────────────────────────────────────────
 const _kBlue      = Color(0xFF1565C0);
 const _kBlueLight = Color(0xFF1E88E5);
 const _kBlueTint  = Color(0xFFE8F0FE);
@@ -52,8 +51,7 @@ class HostelSecretaryDashboard extends StatelessWidget {
                     color       : Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                        color: Colors.white.withOpacity(0.35),
-                        width: 1.5),
+                        color: Colors.white.withOpacity(0.35), width: 1.5),
                   ),
                   child: const Icon(Icons.admin_panel_settings_rounded,
                       color: Colors.white, size: 28),
@@ -175,7 +173,7 @@ class HostelSecretaryDashboard extends StatelessWidget {
 
           const SizedBox(height: 28),
 
-          // ── Services label ────────────────────────────────────────────
+          // ── Services Label ────────────────────────────────────────────
           Row(children: [
             Container(
               width : 36,
@@ -197,7 +195,7 @@ class HostelSecretaryDashboard extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // ── Services grid (Complaints + Attendance only) ──────────────
+          // ── Services Grid ─────────────────────────────────────────────
           GridView.count(
             shrinkWrap      : true,
             physics         : const NeverScrollableScrollPhysics(),
@@ -249,7 +247,6 @@ class HostelSecretaryDashboard extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle
             Container(
               width : 40,
               height: 4,
@@ -259,7 +256,6 @@ class HostelSecretaryDashboard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-
             const Align(
               alignment: Alignment.centerLeft,
               child: Text('Switch Role',
@@ -312,12 +308,12 @@ class HostelSecretaryDashboard extends StatelessWidget {
 
 // ── Role Tile ─────────────────────────────────────────────────────────────────
 class _RoleTile extends StatelessWidget {
-  final IconData icon;
-  final Color    iconColor;
-  final Color    iconBg;
-  final String   title;
-  final String   subtitle;
-  final bool     isActive;
+  final IconData     icon;
+  final Color        iconColor;
+  final Color        iconBg;
+  final String       title;
+  final String       subtitle;
+  final bool         isActive;
   final VoidCallback onTap;
 
   const _RoleTile({
@@ -353,8 +349,7 @@ class _RoleTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(13),
             ),
             child: Icon(icon,
-                color: isActive ? Colors.white : iconColor,
-                size : 24),
+                color: isActive ? Colors.white : iconColor, size: 24),
           ),
           const SizedBox(width: 14),
           Expanded(

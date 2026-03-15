@@ -1,30 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../core/complaint_theme.dart';
+import '../../core/complaint_theme.dart';
 
-class OfficeAdminComplaintPage extends StatefulWidget {
-  const OfficeAdminComplaintPage({super.key});
+class ComplaintsSection extends StatefulWidget {
+  const ComplaintsSection({super.key});
 
   @override
-  State<OfficeAdminComplaintPage> createState() =>
-      _OfficeAdminComplaintPageState();
+  State<ComplaintsSection> createState() => _ComplaintsSectionState();
 }
 
-class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
+class _ComplaintsSectionState extends State<ComplaintsSection> {
   String _filter = 'All';
   String _search = '';
-  String _categoryFilter = 'All Categories';
+  String _categoryFilter = 'All Categories'; // ✅ NEW
   DateTime? _selectedDate;
 
-  // ✅ Added 'Accepted' to filters
-  final List<String> filters = [
-    'All',
-    'Pending',
-    'Accepted',
-    'Resolved',
-    'Rejected',
-  ];
+  final List<String> filters = ['All', 'Pending', 'Accepted', 'Rejected'];
 
+  // ✅ NEW
   final List<String> categoryFilters = [
     'All Categories',
     'Room Complaint',
@@ -45,45 +38,31 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
     }
   }
 
-  // Returns the last action taken by Office Admin
-  String _officeAction(Map<String, dynamic> data) {
+  String _matronAction(Map<String, dynamic> data) {
     final history = List<Map<String, dynamic>>.from(data['history'] ?? []);
     final entry = history.lastWhere(
-      (h) => h['stage'] == 'Office Admin',
-      orElse: () => <String, dynamic>{},
+      (h) => h['stage'] == 'Matron',
+      orElse: () => {},
     );
     return (entry['action'] ?? '').toString();
   }
 
-  // ✅ Returns ALL actions taken by Office Admin (needed for Accepted state)
-  List<String> _officeActions(Map<String, dynamic> data) {
-    final history = List<Map<String, dynamic>>.from(data['history'] ?? []);
-    return history
-        .where((h) => h['stage'] == 'Office Admin')
-        .map((h) => (h['action'] ?? '').toString())
-        .toList();
-  }
-
-  bool _isForOfficeAdmin(Map<String, dynamic> data) {
+  bool _isForMatron(Map<String, dynamic> data) {
     if (data['isPrivate'] == true) return false;
     final stage = (data['currentStage'] ?? '').toString();
     final history = List<Map<String, dynamic>>.from(data['history'] ?? []);
-    final officeInHistory = history.any((h) => h['stage'] == 'Office Admin');
-    return stage == 'Office Admin' || officeInHistory;
+    final matronInHistory = history.any((h) => h['stage'] == 'Matron');
+    return stage == 'Matron' || matronInHistory;
   }
 
-  // ✅ Updated to handle Accepted state
   bool _matchesFilter(Map<String, dynamic> data) {
-    final action = _officeAction(data);
-    final actions = _officeActions(data);
+    final action = _matronAction(data);
     final stage = (data['currentStage'] ?? '').toString();
     switch (_filter) {
       case 'Pending':
-        return stage == 'Office Admin' && action.isEmpty;
+        return stage == 'Matron' && action.isEmpty;
       case 'Accepted':
-        return actions.contains('accepted') && !actions.contains('resolved');
-      case 'Resolved':
-        return action == 'resolved';
+        return action == 'accepted';
       case 'Rejected':
         return action == 'rejected';
       default:
@@ -99,10 +78,13 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
         (data['studentRoom'] ?? '').toLowerCase().contains(q);
   }
 
+  // ✅ NEW
   bool _matchesCategory(Map<String, dynamic> data) {
     if (_categoryFilter == 'All Categories') return true;
     return (data['category'] ?? '') == _categoryFilter;
   }
+
+  // ✅ NEW: reusable category dropdown widget
 
   bool _matchesDate(Map<String, dynamic> data) {
     if (_selectedDate == null) return true;
@@ -191,178 +173,7 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
     );
   }
 
-  // ✅ NEW: Accept dialog — sends message to student, marks as accepted
   void _showAcceptDialog(String docId, Map<String, dynamic> data) {
-    final msgCtrl = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Icons.thumb_up_alt_outlined, color: kComplaintBlue),
-            SizedBox(width: 8),
-            Text(
-              'Accept Complaint',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE3F2FD),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    data['studentName'] ?? '',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    'Room ${data['studentRoom']}  ·  ${data['category']}',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    data['message'] ?? '',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF444444),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 14),
-            const Text(
-              'Message to Student:',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Let the student know you have acknowledged their complaint.',
-              style: TextStyle(fontSize: 11, color: Colors.grey),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: msgCtrl,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: 'e.g. We will definitely fix it...',
-                hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: kComplaintBlue,
-                    width: 2,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w700),
-            ),
-          ),
-          ElevatedButton.icon(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              final note = msgCtrl.text.trim().isNotEmpty
-                  ? msgCtrl.text.trim()
-                  : 'Your complaint has been accepted and is being worked on.';
-              try {
-                await FirebaseFirestore.instance
-                    .collection('complaints')
-                    .doc(docId)
-                    .update({
-                      'status': 'accepted',
-                      'currentStage': 'Office Admin',
-                      'currentStageIndex':
-                          (data['chain'] as List?)?.indexOf('Office Admin') ??
-                          5,
-                      'acceptMessage': note,
-                      'officeAdminMessage': note,
-                      'acceptedAt': DateTime.now().toIso8601String(),
-                      'history': FieldValue.arrayUnion([
-                        {
-                          'stage': 'Office Admin',
-                          'action': 'accepted',
-                          'note': note,
-                          'timestamp': DateTime.now().toIso8601String(),
-                        },
-                      ]),
-                    });
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Row(
-                      children: [
-                        Icon(Icons.thumb_up, color: Colors.white, size: 18),
-                        SizedBox(width: 8),
-                        Text(
-                          'Complaint accepted — student notified',
-                          style: TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                      ],
-                    ),
-                    backgroundColor: kComplaintBlue,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    duration: const Duration(seconds: 3),
-                  ),
-                );
-              } catch (e) {
-                if (!mounted) return;
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('Error: $e')));
-              }
-            },
-            icon: const Icon(Icons.thumb_up, size: 16),
-            label: const Text(
-              'Confirm Accept',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kComplaintBlue,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ✅ NEW: Resolve dialog — marks complaint as fully fixed (no message needed)
-  void _showResolveDialog(String docId, Map<String, dynamic> data) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -372,7 +183,7 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
             Icon(Icons.check_circle_outline, color: kComplaintBlue),
             SizedBox(width: 8),
             Text(
-              'Resolve Complaint',
+              'Accept & Forward',
               style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
             ),
           ],
@@ -413,22 +224,40 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.all(10),
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: kComplaintBlueTint,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: kComplaintBlue.withOpacity(0.3),
+                ),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.info_outline, size: 14, color: kComplaintBlue),
-                  SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      'Press this only after the issue has been physically fixed.',
-                      style: TextStyle(fontSize: 12, color: kComplaintBlue),
-                    ),
+                  Icon(Icons.person, color: kComplaintBlue, size: 20),
+                  SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Forwarding To',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: kComplaintBlue,
+                        ),
+                      ),
+                      Text(
+                        'RT',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF1B5E20),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -447,24 +276,25 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
             onPressed: () async {
               Navigator.pop(ctx);
               try {
+                final chain = List<String>.from(data['chain'] ?? []);
+                final rtIndex = chain.indexOf('RT');
+                final Map<String, dynamic> updateData = {
+                  'currentStage': 'RT',
+                  'status': 'pending',
+                  'history': FieldValue.arrayUnion([
+                    {
+                      'stage': 'Matron',
+                      'action': 'accepted',
+                      'note': 'Accepted by Matron and forwarded to RT',
+                      'timestamp': DateTime.now().toIso8601String(),
+                    },
+                  ]),
+                };
+                if (rtIndex != -1) updateData['currentStageIndex'] = rtIndex;
                 await FirebaseFirestore.instance
                     .collection('complaints')
                     .doc(docId)
-                    .update({
-                      'status': 'resolved',
-                      'currentStage': 'Office Admin',
-                      'currentStageIndex':
-                          (data['chain'] as List?)?.indexOf('Office Admin') ??
-                          5,
-                      'history': FieldValue.arrayUnion([
-                        {
-                          'stage': 'Office Admin',
-                          'action': 'resolved',
-                          'note': 'Complaint fully resolved by Office Admin',
-                          'timestamp': DateTime.now().toIso8601String(),
-                        },
-                      ]),
-                    });
+                    .update(updateData);
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -473,7 +303,7 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                         Icon(Icons.check_circle, color: Colors.white, size: 18),
                         SizedBox(width: 8),
                         Text(
-                          'Complaint marked as resolved',
+                          'Forwarded to RT',
                           style: TextStyle(fontWeight: FontWeight.w700),
                         ),
                       ],
@@ -493,9 +323,9 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                 ).showSnackBar(SnackBar(content: Text('Error: $e')));
               }
             },
-            icon: const Icon(Icons.check_circle, size: 16),
+            icon: const Icon(Icons.send, size: 16),
             label: const Text(
-              'Confirm Resolve',
+              'Accept & Forward to RT',
               style: TextStyle(fontWeight: FontWeight.w700),
             ),
             style: ElevatedButton.styleFrom(
@@ -511,7 +341,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
     );
   }
 
-  // Unchanged from original
   void _showRejectDialog(String docId, Map<String, dynamic> data) {
     final ctrl = TextEditingController();
     showDialog(
@@ -614,20 +443,16 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                     .doc(docId)
                     .update({
                       'status': 'rejected',
-                      'currentStage': 'Office Admin',
-                      'currentStageIndex':
-                          (data['chain'] as List?)?.indexOf('Office Admin') ??
-                          5,
                       'rejectMessage': ctrl.text.trim().isNotEmpty
                           ? ctrl.text.trim()
-                          : 'Rejected by Office Admin',
+                          : 'Rejected by Matron',
                       'history': FieldValue.arrayUnion([
                         {
-                          'stage': 'Office Admin',
+                          'stage': 'Matron',
                           'action': 'rejected',
                           'note': ctrl.text.trim().isNotEmpty
                               ? ctrl.text.trim()
-                              : 'Rejected by Office Admin',
+                              : 'Rejected by Matron',
                           'timestamp': DateTime.now().toIso8601String(),
                         },
                       ]),
@@ -678,7 +503,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
     );
   }
 
-  // Unchanged from original
   Widget _actionBtn({
     required String label,
     required IconData icon,
@@ -736,33 +560,26 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
           final allDocs = snapshot.data?.docs ?? [];
           final myDocs = allDocs.where((doc) {
             final data = doc.data() as Map<String, dynamic>;
-            return _isForOfficeAdmin(data);
+            return _isForMatron(data);
           }).toList();
 
-          // ✅ Updated stat counts
           final total = myDocs.length;
           final pending = myDocs.where((d) {
             final data = d.data() as Map<String, dynamic>;
-            return _officeAction(data).isEmpty &&
-                (data['currentStage'] ?? '') == 'Office Admin';
+            return _matronAction(data).isEmpty &&
+                (data['currentStage'] ?? '') == 'Matron';
           }).length;
           final accepted = myDocs.where((d) {
-            final actions = _officeActions(d.data() as Map<String, dynamic>);
-            return actions.contains('accepted') &&
-                !actions.contains('resolved');
-          }).length;
-          final resolved = myDocs.where((d) {
             final data = d.data() as Map<String, dynamic>;
-            return _officeAction(data) == 'resolved';
+            return _matronAction(data) == 'accepted';
           }).length;
           final rejected = myDocs.where((d) {
             final data = d.data() as Map<String, dynamic>;
-            return _officeAction(data) == 'rejected';
+            return _matronAction(data) == 'rejected';
           }).length;
 
           return Column(
             children: [
-              // Header — same as original, stat boxes updated
               Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -817,58 +634,47 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                     ),
                     const SizedBox(height: 4),
                     const Text(
-                      'Office Admin · Review & Manage',
+                      'Hostel Matron · Review & Manage',
                       style: TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                     const SizedBox(height: 16),
-                    // ✅ Scrollable row — now has 5 stat boxes
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _statBox(
-                            'Total',
-                            total,
-                            Colors.white.withOpacity(0.25),
-                          ),
-                          const SizedBox(width: 8),
-                          _statBox(
-                            'Pending',
-                            pending,
-                            const Color(0xFFFFC107).withOpacity(0.6),
-                          ),
-                          const SizedBox(width: 8),
-                          _statBox(
-                            'Accepted',
-                            accepted,
-                            kComplaintBlue.withOpacity(0.7),
-                          ),
-                          const SizedBox(width: 8),
-                          _statBox(
-                            'Resolved',
-                            resolved,
-                            const Color(0xFF1565C0).withOpacity(0.6),
-                          ),
-                          const SizedBox(width: 8),
-                          _statBox(
-                            'Rejected',
-                            rejected,
-                            const Color(0xFFDC3545).withOpacity(0.6),
-                          ),
-                        ],
-                      ),
+                    Row(
+                      children: [
+                        _statBox(
+                          'Total',
+                          total,
+                          Colors.white.withOpacity(0.25),
+                        ),
+                        const SizedBox(width: 8),
+                        _statBox(
+                          'Pending',
+                          pending,
+                          const Color(0xFFFFC107).withOpacity(0.6),
+                        ),
+                        const SizedBox(width: 8),
+                        _statBox(
+                          'Accepted',
+                          accepted,
+                          const Color(0xFF1565C0).withOpacity(0.6),
+                        ),
+                        const SizedBox(width: 8),
+                        _statBox(
+                          'Rejected',
+                          rejected,
+                          const Color(0xFFDC3545).withOpacity(0.6),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     children: [
                       const SizedBox(height: 16),
-                      // Search — unchanged from original
+                      // Search
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -943,7 +749,7 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.calendar_month,
                                       size: 18,
                                       color: kComplaintBlue,
@@ -992,11 +798,11 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                       ),
                       const SizedBox(height: 10),
 
-                      // Category dropdown — unchanged
+                      // ✅ NEW: Category dropdown
                       _categoryDropdown(),
                       const SizedBox(height: 10),
 
-                      // Status filter tabs — unchanged
+                      // Status filter tabs
                       SizedBox(
                         height: 36,
                         child: ListView.separated(
@@ -1106,8 +912,8 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                           b.data() as Map<String, dynamic>;
                                       DateTime aTime = DateTime(2000);
                                       DateTime bTime = DateTime(2000);
-                                      final aRaw = aData['createdAt'];
-                                      final bRaw = bData['createdAt'];
+                                      final aRaw = aData["createdAt"];
+                                      final bRaw = bData["createdAt"];
                                       if (aRaw is String)
                                         aTime =
                                             DateTime.tryParse(aRaw) ?? aTime;
@@ -1142,13 +948,13 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                         ),
                                         const SizedBox(height: 4),
                                         const Text(
-                                          'Complaints forwarded by Warden\nwill appear here.',
+                                          'Complaints forwarded by Hostel\nSecretary will appear here.',
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             color: Colors.grey,
                                             fontSize: 12,
                                           ),
-                                          ),
+                                        ),
                                       ],
                                     ),
                                   );
@@ -1161,19 +967,12 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                     final data =
                                         doc.data() as Map<String, dynamic>;
                                     final docId = doc.id;
-
-                                    // ✅ Updated card state variables
-                                    final officeAction = _officeAction(data);
-                                    final officeActions = _officeActions(data);
+                                    final matronAction = _matronAction(data);
                                     final isAccepted =
-                                        officeActions.contains('accepted') &&
-                                        !officeActions.contains('resolved') &&
-                                        !officeActions.contains('rejected');
-                                    final isResolved =
-                                        officeAction == 'resolved';
+                                        matronAction == 'accepted';
                                     final isRejected =
-                                        officeAction == 'rejected';
-                                    final actionDone = isResolved || isRejected;
+                                        matronAction == 'rejected';
+                                    final actionDone = isAccepted || isRejected;
 
                                     return Container(
                                       margin: const EdgeInsets.only(bottom: 14),
@@ -1200,7 +999,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                // Name + status badge row
                                                 Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment
@@ -1241,7 +1039,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                         ),
                                                       ],
                                                     ),
-                                                    // ✅ Updated badge with Accepted state
                                                     Container(
                                                       padding:
                                                           const EdgeInsets.symmetric(
@@ -1253,13 +1050,9 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                             ? const Color(
                                                                 0xFFFDEDEE,
                                                               )
-                                                            : isResolved
-                                                            ? const Color(
-                                                                0xFFE8F0FE,
-                                                              )
                                                             : isAccepted
                                                             ? const Color(
-                                                                0xFFE3F2FD,
+                                                                0xFFE8F0FE,
                                                               )
                                                             : const Color(
                                                                 0xFFFFF3CD,
@@ -1281,10 +1074,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                                   ? const Color(
                                                                       0xFFDC3545,
                                                                     )
-                                                                  : isResolved
-                                                                  ? const Color(
-                                                                      0xFF1565C0,
-                                                                    )
                                                                   : isAccepted
                                                                   ? const Color(
                                                                       0xFF1565C0,
@@ -1302,8 +1091,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                           Text(
                                                             isRejected
                                                                 ? 'Rejected'
-                                                                : isResolved
-                                                                ? 'Resolved'
                                                                 : isAccepted
                                                                 ? 'Accepted'
                                                                 : 'Pending',
@@ -1312,13 +1099,9 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                                   ? const Color(
                                                                       0xFF8B0000,
                                                                     )
-                                                                  : isResolved
-                                                                  ? const Color(
-                                                                      0xFF155724,
-                                                                    )
                                                                   : isAccepted
                                                                   ? const Color(
-                                                                      0xFF0D47A1,
+                                                                      0xFF155724,
                                                                     )
                                                                   : const Color(
                                                                       0xFF856404,
@@ -1335,8 +1118,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                   ],
                                                 ),
                                                 const SizedBox(height: 10),
-
-                                                // Forwarded by Warden badge — unchanged
                                                 Container(
                                                   margin: const EdgeInsets.only(
                                                     bottom: 8,
@@ -1348,7 +1129,7 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                       ),
                                                   decoration: BoxDecoration(
                                                     color: const Color(
-                                                      0xFFE3F2FD,
+                                                      0xFFE8F0FE,
                                                     ),
                                                     borderRadius:
                                                         BorderRadius.circular(
@@ -1363,16 +1144,16 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                         Icons.forward_to_inbox,
                                                         size: 12,
                                                         color: Color(
-                                                          0xFF1565C0,
+                                                          0xFF1E88E5,
                                                         ),
                                                       ),
                                                       SizedBox(width: 4),
                                                       Text(
-                                                        'Forwarded by Warden',
+                                                        'Forwarded by Hostel Secretary',
                                                         style: TextStyle(
                                                           fontSize: 11,
                                                           color: Color(
-                                                            0xFF1565C0,
+                                                            0xFF1E88E5,
                                                           ),
                                                           fontWeight:
                                                               FontWeight.w700,
@@ -1381,8 +1162,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                     ],
                                                   ),
                                                 ),
-
-                                                // Category + message — unchanged
                                                 Row(
                                                   children: [
                                                     Container(
@@ -1430,57 +1209,12 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                     ),
                                                   ],
                                                 ),
-
-                                                // ✅ Accept message line
                                                 if (isAccepted) ...[
-                                                  const SizedBox(height: 8),
-                                                  Row(
-                                                    children: [
-                                                      const Icon(
-                                                        Icons.thumb_up,
-                                                        size: 13,
-                                                        color: Color(
-                                                          0xFF1565C0,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 4),
-                                                      const Text(
-                                                        'Accepted — ',
-                                                        style: TextStyle(
-                                                          fontSize: 12,
-                                                          color: Color(
-                                                            0xFF1565C0,
-                                                          ),
-                                                          fontWeight:
-                                                              FontWeight.w700,
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        child: Text(
-                                                          data['acceptMessage'] ??
-                                                              'Being worked on',
-                                                          style:
-                                                              const TextStyle(
-                                                                fontSize: 12,
-                                                                color: Color(
-                                                                  0xFF1565C0,
-                                                                ),
-                                                              ),
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-
-                                                // ✅ Resolved line
-                                                if (isResolved) ...[
                                                   const SizedBox(height: 8),
                                                   const Row(
                                                     children: [
                                                       Icon(
-                                                        Icons.check_circle,
+                                                        Icons.forward_to_inbox,
                                                         size: 13,
                                                         color: Color(
                                                           0xFF1565C0,
@@ -1488,7 +1222,7 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                       ),
                                                       SizedBox(width: 4),
                                                       Text(
-                                                        'Resolved by Office Admin',
+                                                        'Forwarded to: RT',
                                                         style: TextStyle(
                                                           fontSize: 12,
                                                           color: Color(
@@ -1504,8 +1238,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                               ],
                                             ),
                                           ),
-
-                                          // ✅ Updated action buttons
                                           Container(
                                             decoration: const BoxDecoration(
                                               color: Color(0xFFF8FFFE),
@@ -1525,199 +1257,44 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                               horizontal: 14,
                                               vertical: 10,
                                             ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
+                                            child: Row(
                                               children: [
-                                                // Pending: Accept + Reject
-                                                if (!isAccepted && !actionDone)
-                                                  Column(
-                                                    children: [
-                                                      // Accept button — full width, prominent
-                                                      GestureDetector(
-                                                        onTap: () =>
-                                                            _showAcceptDialog(
-                                                              docId,
-                                                              data,
-                                                            ),
-                                                        child: Container(
-                                                          width:
-                                                              double.infinity,
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                vertical: 10,
-                                                              ),
-                                                          decoration: BoxDecoration(
-                                                            color: const Color(
-                                                              0xFFE3F2FD,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  12,
-                                                                ),
-                                                          ),
-                                                          child: const Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Icon(
-                                                                Icons
-                                                                    .thumb_up_alt_outlined,
-                                                                size: 15,
-                                                                color: Color(
-                                                                  0xFF1565C0,
-                                                                ),
-                                                              ),
-                                                              SizedBox(
-                                                                width: 6,
-                                                              ),
-                                                              Text(
-                                                                'Accept',
-                                                                style: TextStyle(
-                                                                  color: Color(
-                                                                    0xFF1565C0,
-                                                                  ),
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  fontSize: 13,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 8),
-                                                      Row(
-                                                        children: [
-                                                          _actionBtn(
-                                                            label: 'Resolve',
-                                                            icon: Icons
-                                                                .check_circle_outline,
-                                                            bgColor:
-                                                                const Color(
-                                                                  0xFFE8F0FE,
-                                                                ),
-                                                            textColor:
-                                                                const Color(
-                                                                  0xFF1565C0,
-                                                                ),
-                                                            done: false,
-                                                            isThis: false,
-                                                            onTap: () =>
-                                                                _showResolveDialog(
-                                                                  docId,
-                                                                  data,
-                                                                ),
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 10,
-                                                          ),
-                                                          _actionBtn(
-                                                            label: 'Reject',
-                                                            icon: Icons
-                                                                .cancel_outlined,
-                                                            bgColor:
-                                                                const Color(
-                                                                  0xFFFDEDEE,
-                                                                ),
-                                                            textColor:
-                                                                const Color(
-                                                                  0xFFDC3545,
-                                                                ),
-                                                            done: false,
-                                                            isThis: false,
-                                                            onTap: () =>
-                                                                _showRejectDialog(
-                                                                  docId,
-                                                                  data,
-                                                                ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
+                                                _actionBtn(
+                                                  label: 'Accept',
+                                                  icon: Icons
+                                                      .check_circle_outline,
+                                                  bgColor: const Color(
+                                                    0xFFE8F0FE,
                                                   ),
-
-                                                // Accepted: Resolve + Reject
-                                                if (isAccepted)
-                                                  Row(
-                                                    children: [
-                                                      _actionBtn(
-                                                        label: 'Resolve',
-                                                        icon: Icons
-                                                            .check_circle_outline,
-                                                        bgColor: const Color(
-                                                          0xFFE8F0FE,
-                                                        ),
-                                                        textColor: const Color(
-                                                          0xFF1565C0,
-                                                        ),
-                                                        done: false,
-                                                        isThis: false,
-                                                        onTap: () =>
-                                                            _showResolveDialog(
-                                                              docId,
-                                                              data,
-                                                            ),
-                                                      ),
-                                                      const SizedBox(width: 10),
-                                                      _actionBtn(
-                                                        label: 'Reject',
-                                                        icon: Icons
-                                                            .cancel_outlined,
-                                                        bgColor: const Color(
-                                                          0xFFFDEDEE,
-                                                        ),
-                                                        textColor: const Color(
-                                                          0xFFDC3545,
-                                                        ),
-                                                        done: false,
-                                                        isThis: false,
-                                                        onTap: () =>
-                                                            _showRejectDialog(
-                                                              docId,
-                                                              data,
-                                                            ),
-                                                      ),
-                                                    ],
+                                                  textColor: const Color(
+                                                    0xFF1565C0,
                                                   ),
-
-                                                // Done: Resolved
-                                                if (isResolved)
-                                                  Row(
-                                                    children: [
-                                                      _actionBtn(
-                                                        label: 'Resolved',
-                                                        icon:
-                                                            Icons.check_circle,
-                                                        bgColor: const Color(
-                                                          0xFF1565C0,
-                                                        ),
-                                                        textColor: Colors.white,
-                                                        done: true,
-                                                        isThis: true,
-                                                        onTap: () {},
+                                                  done: actionDone,
+                                                  isThis: isAccepted,
+                                                  onTap: () =>
+                                                      _showAcceptDialog(
+                                                        docId,
+                                                        data,
                                                       ),
-                                                    ],
+                                                ),
+                                                const SizedBox(width: 10),
+                                                _actionBtn(
+                                                  label: 'Reject',
+                                                  icon: Icons.cancel_outlined,
+                                                  bgColor: const Color(
+                                                    0xFFFDEDEE,
                                                   ),
-
-                                                // Done: Rejected
-                                                if (isRejected)
-                                                  Row(
-                                                    children: [
-                                                      _actionBtn(
-                                                        label: 'Rejected',
-                                                        icon: Icons.block,
-                                                        bgColor: const Color(
-                                                          0xFFDC3545,
-                                                        ),
-                                                        textColor: Colors.white,
-                                                        done: true,
-                                                        isThis: true,
-                                                        onTap: () {},
+                                                  textColor: const Color(
+                                                    0xFFDC3545,
+                                                  ),
+                                                  done: actionDone,
+                                                  isThis: isRejected,
+                                                  onTap: () =>
+                                                      _showRejectDialog(
+                                                        docId,
+                                                        data,
                                                       ),
-                                                    ],
-                                                  ),
+                                                ),
                                               ],
                                             ),
                                           ),
@@ -1739,30 +1316,30 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
     );
   }
 
-  // ✅ Updated _statBox — fixed width instead of Expanded (for horizontal scroll)
   Widget _statBox(String label, int count, Color color) {
-    return Container(
-      width: 80,
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Text(
-            '$count',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            Text(
+              '$count',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-          ),
-          Text(
-            label,
-            style: const TextStyle(color: Colors.white, fontSize: 11),
-          ),
-        ],
+            Text(
+              label,
+              style: const TextStyle(color: Colors.white, fontSize: 11),
+            ),
+          ],
+        ),
       ),
     );
   }
