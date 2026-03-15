@@ -222,6 +222,15 @@ class HostelSecretaryDashboard extends StatelessWidget {
                       builder: (_) => const AttendanceViewPage()),
                 ),
               ),
+
+               ServiceTile(
+                icon: Icons.picture_as_pdf_rounded,
+                title: 'Fund Reports',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HostelSecFundsPage()),
+                ),
+              ),
             ],
           ),
         ],
