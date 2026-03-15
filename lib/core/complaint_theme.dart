@@ -12,4 +12,8 @@ const kComplaintHeaderGradient = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
   colors: [kComplaintBlue, kComplaintBlueLight],
+<<<<<<< HEAD
 );
+=======
+);
+>>>>>>> 74dd07498a6dc2266cb5c5c8ccec66b1d17aceda
