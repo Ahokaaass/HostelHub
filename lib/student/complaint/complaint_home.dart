@@ -1573,6 +1573,7 @@ class _ComplaintTrackingPageState extends State<ComplaintTrackingPage> {
                       ),
                       const SizedBox(height: 14),
                     ],
+
                     // ── Complaint info ──
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -1816,82 +1817,6 @@ class _ComplaintTrackingPageState extends State<ComplaintTrackingPage> {
                       ),
                     ),
                     const SizedBox(height: 14),
-
-                    // ── Forward button ──
-                    if (canForward)
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: kComplaintBlueTint,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: kComplaintBlue.withOpacity(0.25),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Not satisfied?',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 14,
-                                color: Color(0xFF1B1B1B),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'You can escalate this complaint to ${chain[currentIndex + 1]}.',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: kComplaintBlue,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: kComplaintBlue,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  elevation: 0,
-                                ),
-                                onPressed: _forwarding
-                                    ? null
-                                    : () => _showForwardConfirmation(
-                                        d,
-                                        chain,
-                                        currentIndex,
-                                      ),
-                                icon: _forwarding
-                                    ? const SizedBox(
-                                        width: 16,
-                                        height: 16,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : const Icon(Icons.forward),
-                                label: Text(
-                                  _forwarding
-                                      ? 'Forwarding...'
-                                      : 'Escalate to ${chain[currentIndex + 1]}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
 
                     // ── History ──
                     if (history.isNotEmpty) ...[
@@ -2150,18 +2075,23 @@ class _HistoryTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // ✅ AFTER
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '$stage  →  ${action.toUpperCase()}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: _ic(action),
+                    Flexible(
+                      child: Text(
+                        '$stage  →  ${action.toUpperCase()}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: _ic(action),
+                        ),
                       ),
                     ),
-                    if (time != null)
+                    if (time != null) ...[
+                      const SizedBox(width: 6),
                       Text(
                         time,
                         style: const TextStyle(
@@ -2169,6 +2099,7 @@ class _HistoryTile extends StatelessWidget {
                           color: Colors.grey,
                         ),
                       ),
+                    ],
                   ],
                 ),
                 if (note.isNotEmpty) ...[
