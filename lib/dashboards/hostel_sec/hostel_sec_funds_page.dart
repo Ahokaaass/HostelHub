@@ -6,13 +6,57 @@ import 'package:url_launcher/url_launcher.dart';
 class HostelSecFundsPage extends StatelessWidget {
   const HostelSecFundsPage({super.key});
 
-  /// Open PDF
-  Future<void> _openPdf(String url) async {
+  /// Open PDF in viewer
+  Future<void> _viewPdf(String url) async {
+    final viewer = "https://docs.google.com/gview?embedded=true&url=$url";
+
+    final uri = Uri.parse(viewer);
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  /// Direct download
+  Future<void> _downloadPdf(String url) async {
     final uri = Uri.parse(url);
 
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
+  }
+
+  /// Show options (view / download)
+  void _showOptions(BuildContext context, String url) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.visibility),
+                title: const Text("Open PDF"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _viewPdf(url);
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.download),
+                title: const Text("Download PDF"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _downloadPdf(url);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -48,6 +92,7 @@ class HostelSecFundsPage extends StatelessWidget {
               final url = data['url'] ?? "";
 
               final ts = data['uploadedAt'] as Timestamp?;
+
               final date = ts != null
                   ? DateFormat('dd MMM yyyy').format(ts.toDate())
                   : "";
@@ -67,9 +112,11 @@ class HostelSecFundsPage extends StatelessWidget {
                   subtitle: Text("$fileName • $date"),
 
                   trailing: IconButton(
-                    icon: const Icon(Icons.download),
-                    onPressed: () => _openPdf(url),
+                    icon: const Icon(Icons.more_vert),
+                    onPressed: () => _showOptions(context, url),
                   ),
+
+                  onTap: () => _viewPdf(url),
                 ),
               );
             },
