@@ -31,7 +31,6 @@ class HostelFundsPage extends StatefulWidget {
 
 class _HostelFundsPageState extends State<HostelFundsPage> {
   bool _uploading = false;
-  double _uploadProgress = 0;
   String _uploadingLabel = '';
 
   /// CLOUDINARY UPLOAD FUNCTION
@@ -43,7 +42,7 @@ class _HostelFundsPageState extends State<HostelFundsPage> {
     const uploadPreset = "hostel_pdf_upload";
 
     final url = Uri.parse(
-      "https://api.cloudinary.com/v1_1/dj0ykuyyv/raw/upload",
+      "https://api.cloudinary.com/v1_1/$cloudName/raw/upload",
     );
 
     var request = http.MultipartRequest("POST", url);
@@ -60,9 +59,9 @@ class _HostelFundsPageState extends State<HostelFundsPage> {
       var responseData = await http.Response.fromStream(response);
       var data = jsonDecode(responseData.body);
       return data['secure_url'];
-    } else {
-      return null;
     }
+
+    return null;
   }
 
   /// PICK + UPLOAD PDF
@@ -76,33 +75,42 @@ class _HostelFundsPageState extends State<HostelFundsPage> {
     if (result == null) return;
 
     final file = result.files.first;
+    Uint8List? fileBytes = file.bytes;
+    final fileName = file.name.replaceAll('.pdf', '');
 
-    Uint8List fileBytes = file.bytes!;
-    String fileName = file.name;
+    if (fileBytes == null) {
+      if (!kIsWeb && file.path != null) {
+        fileBytes = await File(file.path!).readAsBytes();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Unable to read selected file")),
+        );
+        return;
+      }
+    }
 
-    /// Ask report label
     final labelCtrl = TextEditingController(
-      text: fileName.replaceAll(".pdf", ""),
+      text: fileName.replaceAll('.pdf', ''),
     );
 
     final label = await showDialog<String>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text("Report Label"),
+        title: const Text('Report Label'),
         content: TextField(
           controller: labelCtrl,
           decoration: const InputDecoration(
-            hintText: "Ex: March 2026 Fund Report",
+            hintText: 'Ex: March 2026 Fund Report',
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, labelCtrl.text.trim()),
-            child: const Text("Upload"),
+            child: const Text('Upload'),
           ),
         ],
       ),
@@ -116,14 +124,12 @@ class _HostelFundsPageState extends State<HostelFundsPage> {
     });
 
     try {
-      /// Upload to Cloudinary
       final url = await uploadPdfToCloudinary(fileBytes, fileName);
 
       if (url == null) {
-        throw Exception("Upload failed");
+        throw Exception('Upload failed');
       }
 
-      /// Save to Firestore
       await FirebaseFirestore.instance.collection('hostel_funds').add({
         'label': label,
         'fileName': fileName,
@@ -134,26 +140,27 @@ class _HostelFundsPageState extends State<HostelFundsPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("PDF uploaded successfully"),
+          content: Text('PDF uploaded successfully'),
           backgroundColor: _kGreen,
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Upload failed: $e"), backgroundColor: _kRed),
+        SnackBar(content: Text('Upload failed: $e'), backgroundColor: _kRed),
       );
     }
 
     setState(() {
       _uploading = false;
       _uploadingLabel = '';
-      _uploadProgress = 0;
     });
   }
 
-  /// OPEN PDF
+  /// OPEN PDF (Google viewer avoids PDF loading errors)
   Future<void> _openPdf(String url) async {
-    final uri = Uri.parse(url);
+    final viewer = "https://docs.google.com/gview?embedded=true&url=$url";
+
+    final uri = Uri.parse(viewer);
 
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -206,7 +213,6 @@ class _HostelFundsPageState extends State<HostelFundsPage> {
 
             itemBuilder: (_, i) {
               final doc = docs[i];
-
               final data = doc.data() as Map<String, dynamic>;
 
               final label = data['label'];
