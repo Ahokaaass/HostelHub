@@ -41,7 +41,7 @@ dependencies:
   pdf: ^3.10.0
   printing: ^5.11.0
   image_picker: ^1.1.2 
-  url_launcher: ^6.0.0 # gallery/camera picker
+  url_launcher: ^6.2.5 # gallery/camera picker
   http: ^1.2.0
   
 
