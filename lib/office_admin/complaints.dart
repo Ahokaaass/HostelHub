@@ -16,7 +16,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
   String _categoryFilter = 'All Categories';
   DateTime? _selectedDate;
 
-  // ✅ Added 'Accepted' to filters
   final List<String> filters = [
     'All',
     'Pending',
@@ -45,7 +44,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
     }
   }
 
-  // Returns the last action taken by Office Admin
   String _officeAction(Map<String, dynamic> data) {
     final history = List<Map<String, dynamic>>.from(data['history'] ?? []);
     final entry = history.lastWhere(
@@ -55,7 +53,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
     return (entry['action'] ?? '').toString();
   }
 
-  // ✅ Returns ALL actions taken by Office Admin (needed for Accepted state)
   List<String> _officeActions(Map<String, dynamic> data) {
     final history = List<Map<String, dynamic>>.from(data['history'] ?? []);
     return history
@@ -72,7 +69,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
     return stage == 'Office Admin' || officeInHistory;
   }
 
-  // ✅ Updated to handle Accepted state
   bool _matchesFilter(Map<String, dynamic> data) {
     final action = _officeAction(data);
     final actions = _officeActions(data);
@@ -176,7 +172,10 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: _categoryFilter,
-          icon: const Icon(Icons.keyboard_arrow_down, color: kComplaintBlueLight),
+          icon: const Icon(
+            Icons.keyboard_arrow_down,
+            color: kComplaintBlueLight,
+          ),
           style: const TextStyle(
             color: Color(0xFF1B1B1B),
             fontSize: 13,
@@ -191,177 +190,218 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
     );
   }
 
-  // ✅ NEW: Accept dialog — sends message to student, marks as accepted
+  // ✅ UPDATED: message is mandatory — blue border + inline error below field (like Matron)
   void _showAcceptDialog(String docId, Map<String, dynamic> data) {
     final msgCtrl = TextEditingController();
+    String? errorText;
+
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Icons.thumb_up_alt_outlined, color: kComplaintBlue),
-            SizedBox(width: 8),
-            Text(
-              'Accept Complaint',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE3F2FD),
-                borderRadius: BorderRadius.circular(12),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.thumb_up_alt_outlined, color: kComplaintBlue),
+              SizedBox(width: 8),
+              Text(
+                'Accept Complaint',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
               ),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    data['studentName'] ?? '',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE3F2FD),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data['studentName'] ?? '',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          'Room ${data['studentRoom']}  ·  ${data['category']}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          data['message'] ?? '',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF444444),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    'Room ${data['studentRoom']}  ·  ${data['category']}',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  const SizedBox(height: 14),
+                  const Text(
+                    'Message to Student:',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    data['message'] ?? '',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF444444),
+                  const Text(
+                    'Let the student know you have acknowledged their complaint.',
+                    style: TextStyle(fontSize: 11, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: msgCtrl,
+                    maxLines: 3,
+                    onChanged: (_) {
+                      if (errorText != null)
+                        setDialogState(() => errorText = null);
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'e.g. We will definitely fix it...',
+                      hintStyle: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      errorText: errorText,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: kComplaintBlue,
+                          width: 2,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: kComplaintBlue,
+                          width: 1.5,
+                        ),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: kComplaintBlue,
+                          width: 2,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 14),
-            const Text(
-              'Message to Student:',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Let the student know you have acknowledged their complaint.',
-              style: TextStyle(fontSize: 11, color: Colors.grey),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: msgCtrl,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: 'e.g. We will definitely fix it...',
-                hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w700,
                 ),
-                border: OutlineInputBorder(
+              ),
+            ),
+            ElevatedButton.icon(
+              onPressed: () async {
+                if (msgCtrl.text.trim().isEmpty) {
+                  setDialogState(
+                    () => errorText = 'Please enter a message for the student',
+                  );
+                  return;
+                }
+                Navigator.pop(ctx);
+                try {
+                  await FirebaseFirestore.instance
+                      .collection('complaints')
+                      .doc(docId)
+                      .update({
+                        'status': 'accepted',
+                        'currentStage': 'Office Admin',
+                        'currentStageIndex':
+                            (data['chain'] as List?)?.indexOf('Office Admin') ??
+                            5,
+                        'acceptMessage': msgCtrl.text.trim(),
+                        'officeAdminMessage': msgCtrl.text.trim(),
+                        'acceptedAt': DateTime.now().toIso8601String(),
+                        'history': FieldValue.arrayUnion([
+                          {
+                            'stage': 'Office Admin',
+                            'action': 'accepted',
+                            'note': msgCtrl.text.trim(),
+                            'timestamp': DateTime.now().toIso8601String(),
+                          },
+                        ]),
+                      });
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Row(
+                        children: [
+                          Icon(Icons.thumb_up, color: Colors.white, size: 18),
+                          SizedBox(width: 8),
+                          Text(
+                            'Complaint accepted — student notified',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                      backgroundColor: kComplaintBlue,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                } catch (e) {
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                }
+              },
+              icon: const Icon(Icons.thumb_up, size: 16),
+              label: const Text(
+                'Confirm Accept',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: kComplaintBlue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: kComplaintBlue,
-                    width: 2,
-                  ),
                 ),
               ),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w700),
-            ),
-          ),
-          ElevatedButton.icon(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              final note = msgCtrl.text.trim().isNotEmpty
-                  ? msgCtrl.text.trim()
-                  : 'Your complaint has been accepted and is being worked on.';
-              try {
-                await FirebaseFirestore.instance
-                    .collection('complaints')
-                    .doc(docId)
-                    .update({
-                      'status': 'accepted',
-                      'currentStage': 'Office Admin',
-                      'currentStageIndex':
-                          (data['chain'] as List?)?.indexOf('Office Admin') ??
-                          5,
-                      'acceptMessage': note,
-                      'officeAdminMessage': note,
-                      'acceptedAt': DateTime.now().toIso8601String(),
-                      'history': FieldValue.arrayUnion([
-                        {
-                          'stage': 'Office Admin',
-                          'action': 'accepted',
-                          'note': note,
-                          'timestamp': DateTime.now().toIso8601String(),
-                        },
-                      ]),
-                    });
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Row(
-                      children: [
-                        Icon(Icons.thumb_up, color: Colors.white, size: 18),
-                        SizedBox(width: 8),
-                        Text(
-                          'Complaint accepted — student notified',
-                          style: TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                      ],
-                    ),
-                    backgroundColor: kComplaintBlue,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    duration: const Duration(seconds: 3),
-                  ),
-                );
-              } catch (e) {
-                if (!mounted) return;
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('Error: $e')));
-              }
-            },
-            icon: const Icon(Icons.thumb_up, size: 16),
-            label: const Text(
-              'Confirm Accept',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kComplaintBlue,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  // ✅ NEW: Resolve dialog — marks complaint as fully fixed (no message needed)
   void _showResolveDialog(String docId, Map<String, dynamic> data) {
     showDialog(
       context: context,
@@ -377,63 +417,71 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
             ),
           ],
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: kComplaintBg,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    data['studentName'] ?? '',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                    ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: kComplaintBg,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  Text(
-                    'Room ${data['studentRoom']}  ·  ${data['category']}',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        data['studentName'] ?? '',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        'Room ${data['studentRoom']}  ·  ${data['category']}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        data['message'] ?? '',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF444444),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    data['message'] ?? '',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF444444),
-                    ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: kComplaintBlueTint,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                ],
-              ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.info_outline, size: 14, color: kComplaintBlue),
+                      SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Press this only after the issue has been physically fixed.',
+                          style: TextStyle(fontSize: 12, color: kComplaintBlue),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: kComplaintBlueTint,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.info_outline, size: 14, color: kComplaintBlue),
-                  SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      'Press this only after the issue has been physically fixed.',
-                      style: TextStyle(fontSize: 12, color: kComplaintBlue),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
         actions: [
           TextButton(
@@ -511,174 +559,214 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
     );
   }
 
-  // Unchanged from original
+  // ✅ UPDATED: reason is mandatory — red border + inline error below field (like Matron)
   void _showRejectDialog(String docId, Map<String, dynamic> data) {
     final ctrl = TextEditingController();
+    String? errorText;
+
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Icons.cancel_outlined, color: Color(0xFFDC3545)),
-            SizedBox(width: 8),
-            Text(
-              'Reject Complaint',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF5F5),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFDC3545).withOpacity(0.2),
-                ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.cancel_outlined, color: Color(0xFFDC3545)),
+              SizedBox(width: 8),
+              Text(
+                'Reject Complaint',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
               ),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    data['studentName'] ?? '',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF5F5),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFFDC3545).withOpacity(0.2),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data['studentName'] ?? '',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          'Room ${data['studentRoom']}  ·  ${data['category']}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          data['message'] ?? '',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF444444),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    'Room ${data['studentRoom']}  ·  ${data['category']}',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  const SizedBox(height: 14),
+                  const Text(
+                    'Reason for Rejection:',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    data['message'] ?? '',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF444444),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: ctrl,
+                    maxLines: 3,
+                    onChanged: (_) {
+                      if (errorText != null)
+                        setDialogState(() => errorText = null);
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Enter reason...',
+                      hintStyle: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      errorText: errorText,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFFDC3545),
+                          width: 2,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFFDC3545),
+                          width: 1.5,
+                        ),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFFDC3545),
+                          width: 2,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 14),
-            const Text(
-              'Reason for Rejection (optional):',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: ctrl,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: 'Enter reason...',
-                hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
-                border: OutlineInputBorder(
+            ElevatedButton.icon(
+              onPressed: () async {
+                if (ctrl.text.trim().isEmpty) {
+                  setDialogState(
+                    () => errorText = 'Please enter a reason for rejection',
+                  );
+                  return;
+                }
+                Navigator.pop(ctx);
+                try {
+                  await FirebaseFirestore.instance
+                      .collection('complaints')
+                      .doc(docId)
+                      .update({
+                        'status': 'rejected',
+                        'currentStage': 'Office Admin',
+                        'currentStageIndex':
+                            (data['chain'] as List?)?.indexOf('Office Admin') ??
+                            5,
+                        'rejectMessage': ctrl.text.trim(),
+                        'history': FieldValue.arrayUnion([
+                          {
+                            'stage': 'Office Admin',
+                            'action': 'rejected',
+                            'note': ctrl.text.trim(),
+                            'timestamp': DateTime.now().toIso8601String(),
+                          },
+                        ]),
+                      });
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Row(
+                        children: [
+                          Icon(Icons.block, color: Colors.white, size: 18),
+                          SizedBox(width: 8),
+                          Text(
+                            'Complaint rejected',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                      backgroundColor: const Color(0xFFDC3545),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                } catch (e) {
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                }
+              },
+              icon: const Icon(Icons.block, size: 16),
+              label: const Text(
+                'Confirm Reject',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFDC3545),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFFDC3545),
-                    width: 2,
-                  ),
                 ),
               ),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w700),
-            ),
-          ),
-          ElevatedButton.icon(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              try {
-                await FirebaseFirestore.instance
-                    .collection('complaints')
-                    .doc(docId)
-                    .update({
-                      'status': 'rejected',
-                      'currentStage': 'Office Admin',
-                      'currentStageIndex':
-                          (data['chain'] as List?)?.indexOf('Office Admin') ??
-                          5,
-                      'rejectMessage': ctrl.text.trim().isNotEmpty
-                          ? ctrl.text.trim()
-                          : 'Rejected by Office Admin',
-                      'history': FieldValue.arrayUnion([
-                        {
-                          'stage': 'Office Admin',
-                          'action': 'rejected',
-                          'note': ctrl.text.trim().isNotEmpty
-                              ? ctrl.text.trim()
-                              : 'Rejected by Office Admin',
-                          'timestamp': DateTime.now().toIso8601String(),
-                        },
-                      ]),
-                    });
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Row(
-                      children: [
-                        Icon(Icons.block, color: Colors.white, size: 18),
-                        SizedBox(width: 8),
-                        Text(
-                          'Complaint rejected',
-                          style: TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                      ],
-                    ),
-                    backgroundColor: const Color(0xFFDC3545),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    duration: const Duration(seconds: 3),
-                  ),
-                );
-              } catch (e) {
-                if (!mounted) return;
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('Error: $e')));
-              }
-            },
-            icon: const Icon(Icons.block, size: 16),
-            label: const Text(
-              'Confirm Reject',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDC3545),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  // Unchanged from original
   Widget _actionBtn({
     required String label,
     required IconData icon,
@@ -730,6 +818,7 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kComplaintBg,
+      resizeToAvoidBottomInset: false,
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('complaints').snapshots(),
         builder: (context, snapshot) {
@@ -739,7 +828,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
             return _isForOfficeAdmin(data);
           }).toList();
 
-          // ✅ Updated stat counts
           final total = myDocs.length;
           final pending = myDocs.where((d) {
             final data = d.data() as Map<String, dynamic>;
@@ -762,7 +850,7 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
 
           return Column(
             children: [
-              // Header — same as original, stat boxes updated
+              // Header
               Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -821,7 +909,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                       style: TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                     const SizedBox(height: 16),
-                    // ✅ Scrollable row — now has 5 stat boxes
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
@@ -868,7 +955,7 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                   child: Column(
                     children: [
                       const SizedBox(height: 16),
-                      // Search — unchanged from original
+                      // Search
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -911,8 +998,7 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                         ),
                       ),
                       const SizedBox(height: 10),
-
-                      // ✅ Date filter
+                      // Date filter
                       Row(
                         children: [
                           Expanded(
@@ -991,12 +1077,9 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                         ],
                       ),
                       const SizedBox(height: 10),
-
-                      // Category dropdown — unchanged
                       _categoryDropdown(),
                       const SizedBox(height: 10),
-
-                      // Status filter tabs — unchanged
+                      // Filter chips
                       SizedBox(
                         height: 36,
                         child: ListView.separated(
@@ -1015,9 +1098,7 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                   vertical: 7,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: active
-                                      ? kComplaintBlue
-                                      : Colors.white,
+                                  color: active ? kComplaintBlue : Colors.white,
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
@@ -1081,7 +1162,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                           ),
                         ),
                       ],
-
                       Expanded(
                         child:
                             snapshot.connectionState == ConnectionState.waiting
@@ -1148,7 +1228,7 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                             color: Colors.grey,
                                             fontSize: 12,
                                           ),
-                                          ),
+                                        ),
                                       ],
                                     ),
                                   );
@@ -1162,7 +1242,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                         doc.data() as Map<String, dynamic>;
                                     final docId = doc.id;
 
-                                    // ✅ Updated card state variables
                                     final officeAction = _officeAction(data);
                                     final officeActions = _officeActions(data);
                                     final isAccepted =
@@ -1200,7 +1279,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                // Name + status badge row
                                                 Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment
@@ -1241,7 +1319,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                         ),
                                                       ],
                                                     ),
-                                                    // ✅ Updated badge with Accepted state
                                                     Container(
                                                       padding:
                                                           const EdgeInsets.symmetric(
@@ -1335,8 +1412,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                   ],
                                                 ),
                                                 const SizedBox(height: 10),
-
-                                                // Forwarded by Warden badge — unchanged
                                                 Container(
                                                   margin: const EdgeInsets.only(
                                                     bottom: 8,
@@ -1381,9 +1456,10 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                     ],
                                                   ),
                                                 ),
-
-                                                // Category + message — unchanged
-                                                Row(
+                                                // ✅ Category on top, message below
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
                                                     Container(
                                                       padding:
@@ -1414,24 +1490,18 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                         ),
                                                       ),
                                                     ),
-                                                    const SizedBox(width: 8),
-                                                    Expanded(
-                                                      child: Text(
-                                                        data['message'] ?? '',
-                                                        style: const TextStyle(
-                                                          fontSize: 13,
-                                                          color: Color(
-                                                            0xFF555555,
-                                                          ),
+                                                    const SizedBox(height: 6),
+                                                    Text(
+                                                      data['message'] ?? '',
+                                                      style: const TextStyle(
+                                                        fontSize: 13,
+                                                        color: Color(
+                                                          0xFF555555,
                                                         ),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
                                                       ),
                                                     ),
                                                   ],
                                                 ),
-
-                                                // ✅ Accept message line
                                                 if (isAccepted) ...[
                                                   const SizedBox(height: 8),
                                                   Row(
@@ -1473,8 +1543,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                     ],
                                                   ),
                                                 ],
-
-                                                // ✅ Resolved line
                                                 if (isResolved) ...[
                                                   const SizedBox(height: 8),
                                                   const Row(
@@ -1504,8 +1572,7 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                               ],
                                             ),
                                           ),
-
-                                          // ✅ Updated action buttons
+                                          // Action buttons
                                           Container(
                                             decoration: const BoxDecoration(
                                               color: Color(0xFFF8FFFE),
@@ -1528,11 +1595,9 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                // Pending: Accept + Reject
                                                 if (!isAccepted && !actionDone)
                                                   Column(
                                                     children: [
-                                                      // Accept button — full width, prominent
                                                       GestureDetector(
                                                         onTap: () =>
                                                             _showAcceptDialog(
@@ -1637,8 +1702,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                       ),
                                                     ],
                                                   ),
-
-                                                // Accepted: Resolve + Reject
                                                 if (isAccepted)
                                                   Row(
                                                     children: [
@@ -1681,8 +1744,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                       ),
                                                     ],
                                                   ),
-
-                                                // Done: Resolved
                                                 if (isResolved)
                                                   Row(
                                                     children: [
@@ -1700,8 +1761,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
                                                       ),
                                                     ],
                                                   ),
-
-                                                // Done: Rejected
                                                 if (isRejected)
                                                   Row(
                                                     children: [
@@ -1739,7 +1798,6 @@ class _OfficeAdminComplaintPageState extends State<OfficeAdminComplaintPage> {
     );
   }
 
-  // ✅ Updated _statBox — fixed width instead of Expanded (for horizontal scroll)
   Widget _statBox(String label, int count, Color color) {
     return Container(
       width: 80,
