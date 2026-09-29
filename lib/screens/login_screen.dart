@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen>
   bool _loading = false;
   String? _selectedHostel;
 
-  static const List<String> _hostels = ['Kabini', 'Nila'];
+  static const List<String> _hostels = ['Kabani', 'Nila'];
 
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
@@ -45,8 +45,7 @@ class _LoginScreenState extends State<LoginScreen>
       vsync: this,
       duration: const Duration(milliseconds: 700),
     );
-    _fadeAnim =
-        CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(
       begin: const Offset(0, 0.12),
       end: Offset.zero,
@@ -179,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen>
 
         late Widget page;
 
-       if (role == 'office' || role == 'admin') {
+        if (role == 'office' || role == 'admin') {
           page = const OfficeDashboard();
         } else if (role == 'warden') {
           page = const WardenDashboard();
@@ -193,8 +192,9 @@ class _LoginScreenState extends State<LoginScreen>
           page = const SecurityDashboard();
         } else if (role == 'principal') {
           page = const PrincipalDashboard();
-        } else if (role == 'purchase_manager') {          // ← ADD
-          page = const PmScreen();          // ← ADD
+        } else if (role == 'purchase_manager') {
+          // ← ADD
+          page = const PmScreen(); // ← ADD
         } else {
           throw "Unauthorized role";
         }
@@ -234,27 +234,22 @@ class _LoginScreenState extends State<LoginScreen>
       suffixIcon: suffix,
       filled: true,
       fillColor: const Color(0xFFF0F5FF),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide:
-            const BorderSide(color: Color(0xFFBBD0F8), width: 1.4),
+        borderSide: const BorderSide(color: Color(0xFFBBD0F8), width: 1.4),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide:
-            const BorderSide(color: Color(0xFF1565C0), width: 1.8),
+        borderSide: const BorderSide(color: Color(0xFF1565C0), width: 1.8),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide:
-            const BorderSide(color: Colors.redAccent, width: 1.4),
+        borderSide: const BorderSide(color: Colors.redAccent, width: 1.4),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide:
-            const BorderSide(color: Colors.redAccent, width: 1.8),
+        borderSide: const BorderSide(color: Colors.redAccent, width: 1.8),
       ),
     );
   }
@@ -270,8 +265,7 @@ class _LoginScreenState extends State<LoginScreen>
             // ── TOP BLUE HEADER ─────────────────────────────────────────────
             Container(
               width: double.infinity,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -382,10 +376,9 @@ class _LoginScreenState extends State<LoginScreen>
                               label: "Enter your user ID",
                               icon: Icons.badge_outlined,
                             ),
-                            validator: (v) =>
-                                v == null || v.isEmpty
-                                    ? "User ID required"
-                                    : null,
+                            validator: (v) => v == null || v.isEmpty
+                                ? "User ID required"
+                                : null,
                           ),
                           const SizedBox(height: 20),
 
@@ -414,13 +407,13 @@ class _LoginScreenState extends State<LoginScreen>
                                   size: 20,
                                 ),
                                 onPressed: () => setState(
-                                    () => _hidePassword = !_hidePassword),
+                                  () => _hidePassword = !_hidePassword,
+                                ),
                               ),
                             ),
-                            validator: (v) =>
-                                v == null || v.isEmpty
-                                    ? "Password required"
-                                    : null,
+                            validator: (v) => v == null || v.isEmpty
+                                ? "Password required"
+                                : null,
                           ),
                           const SizedBox(height: 28),
 
@@ -435,7 +428,8 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 12),
+                                  horizontal: 12,
+                                ),
                                 child: Text(
                                   "Select Your Hostel",
                                   style: TextStyle(
@@ -468,7 +462,9 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                             ),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 4),
+                              horizontal: 14,
+                              vertical: 4,
+                            ),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<String>(
                                 value: _selectedHostel,

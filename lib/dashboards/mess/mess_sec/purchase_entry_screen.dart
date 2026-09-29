@@ -51,7 +51,9 @@ class _PurchaseEntryScreenState extends State<PurchaseEntryScreen> {
     final addedBy = Session.userId;
     if (addedBy == null || addedBy.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User not available. Please login again.')),
+        const SnackBar(
+          content: Text('User not available. Please login again.'),
+        ),
       );
       return;
     }
@@ -82,9 +84,9 @@ class _PurchaseEntryScreenState extends State<PurchaseEntryScreen> {
       setState(() => _selectedDate = DateTime.now());
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add purchase: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to add purchase: $e')));
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -99,9 +101,7 @@ class _PurchaseEntryScreenState extends State<PurchaseEntryScreen> {
 
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppBar(
-        title: const Text('Add Purchase'),
-      ),
+      appBar: AppBar(title: const Text('Add Purchase')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -138,7 +138,10 @@ class _PurchaseEntryScreenState extends State<PurchaseEntryScreen> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
-                              borderSide: const BorderSide(color: kBlue, width: 1.5),
+                              borderSide: const BorderSide(
+                                color: kBlue,
+                                width: 1.5,
+                              ),
                             ),
                           ),
                           validator: (v) {
@@ -160,22 +163,30 @@ class _PurchaseEntryScreenState extends State<PurchaseEntryScreen> {
                                   fillColor: Colors.white,
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
-                                    borderSide: const BorderSide(color: kBorder),
+                                    borderSide: const BorderSide(
+                                      color: kBorder,
+                                    ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
-                                    borderSide: const BorderSide(color: kBlue, width: 1.5),
+                                    borderSide: const BorderSide(
+                                      color: kBlue,
+                                      width: 1.5,
+                                    ),
                                   ),
                                 ),
-                                keyboardType: const TextInputType.numberWithOptions(
-                                  decimal: true,
-                                ),
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
                                 validator: (v) {
                                   final s = v?.trim() ?? '';
                                   if (s.isEmpty) return 'Quantity is required';
                                   final n = num.tryParse(s);
                                   if (n == null) return 'Enter a valid number';
-                                  if (n <= 0) return 'Quantity must be greater than 0';
+                                  if (n <= 0) {
+                                    return 'Quantity must be greater than 0';
+                                  }
                                   return null;
                                 },
                               ),
@@ -186,27 +197,37 @@ class _PurchaseEntryScreenState extends State<PurchaseEntryScreen> {
                                 controller: _priceC,
                                 decoration: InputDecoration(
                                   labelText: 'Price',
-                                  prefixIcon: const Icon(Icons.attach_money_rounded),
+                                  prefixIcon: const Icon(
+                                    Icons.attach_money_rounded,
+                                  ),
                                   filled: true,
                                   fillColor: Colors.white,
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
-                                    borderSide: const BorderSide(color: kBorder),
+                                    borderSide: const BorderSide(
+                                      color: kBorder,
+                                    ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
-                                    borderSide: const BorderSide(color: kBlue, width: 1.5),
+                                    borderSide: const BorderSide(
+                                      color: kBlue,
+                                      width: 1.5,
+                                    ),
                                   ),
                                 ),
-                                keyboardType: const TextInputType.numberWithOptions(
-                                  decimal: true,
-                                ),
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
                                 validator: (v) {
                                   final s = v?.trim() ?? '';
                                   if (s.isEmpty) return 'Price is required';
                                   final n = num.tryParse(s);
                                   if (n == null) return 'Enter a valid number';
-                                  if (n <= 0) return 'Price must be greater than 0';
+                                  if (n <= 0) {
+                                    return 'Price must be greater than 0';
+                                  }
                                   return null;
                                 },
                               ),
@@ -230,7 +251,10 @@ class _PurchaseEntryScreenState extends State<PurchaseEntryScreen> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.calendar_month_rounded, color: kBlue),
+                                const Icon(
+                                  Icons.calendar_month_rounded,
+                                  color: kBlue,
+                                ),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
@@ -243,7 +267,10 @@ class _PurchaseEntryScreenState extends State<PurchaseEntryScreen> {
                                     ),
                                   ),
                                 ),
-                                const Icon(Icons.edit_calendar_rounded, color: kBlue),
+                                const Icon(
+                                  Icons.edit_calendar_rounded,
+                                  color: kBlue,
+                                ),
                               ],
                             ),
                           ),
@@ -255,7 +282,9 @@ class _PurchaseEntryScreenState extends State<PurchaseEntryScreen> {
                           child: FilledButton.icon(
                             onPressed: _submitting ? null : _submit,
                             icon: const Icon(Icons.add_rounded),
-                            label: Text(_submitting ? 'Saving...' : 'Add Purchase'),
+                            label: Text(
+                              _submitting ? 'Saving...' : 'Add Purchase',
+                            ),
                           ),
                         ),
                       ],
@@ -283,7 +312,10 @@ class _PurchaseEntryScreenState extends State<PurchaseEntryScreen> {
                       return const Center(
                         child: Text(
                           'No purchases found.',
-                          style: TextStyle(color: Color(0xFF6B7280), fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            color: Color(0xFF6B7280),
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       );
                     }
@@ -296,29 +328,39 @@ class _PurchaseEntryScreenState extends State<PurchaseEntryScreen> {
                       itemBuilder: (context, i) {
                         final d = docs[i].data();
                         final itemName = d['itemName']?.toString() ?? '';
-                        final qty = d['quantity'] is num ? d['quantity'] as num : null;
-                        final price =
-                            d['price'] is num ? d['price'] as num : null;
-                        final total =
-                            d['total'] is num ? d['total'] as num : null;
+                        final qty = d['quantity'] is num
+                            ? d['quantity'] as num
+                            : null;
+                        final price = d['price'] is num
+                            ? d['price'] as num
+                            : null;
+                        final total = d['total'] is num
+                            ? d['total'] as num
+                            : null;
                         final ts = d['date'] as Timestamp?;
                         final date = ts?.toDate();
                         final dateText = date == null
                             ? '—'
                             : '${date.day.toString().padLeft(2, '0')}/'
-                              '${date.month.toString().padLeft(2, '0')}/'
-                              '${date.year}';
+                                  '${date.month.toString().padLeft(2, '0')}/'
+                                  '${date.year}';
 
                         final qtyText = qty == null ? '—' : qty.toString();
-                        final priceText =
-                            price == null ? '—' : price.toString();
-                        final totalText =
-                            total == null ? '—' : total.toString();
+                        final priceText = price == null
+                            ? '—'
+                            : price.toString();
+                        final totalText = total == null
+                            ? '—'
+                            : total.toString();
 
                         return ListTile(
                           dense: true,
                           contentPadding: EdgeInsets.zero,
-                          title: Text(itemName, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          title: Text(
+                            itemName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                           subtitle: Text(
                             'Qty: $qtyText • Price: ₹$priceText • $dateText',
                           ),
@@ -339,4 +381,3 @@ class _PurchaseEntryScreenState extends State<PurchaseEntryScreen> {
     );
   }
 }
-

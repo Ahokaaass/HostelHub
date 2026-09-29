@@ -6,7 +6,7 @@ class MessBillsService {
   final FirebaseFirestore _db;
 
   MessBillsService({FirebaseFirestore? firestore})
-      : _db = firestore ?? FirebaseFirestore.instance;
+    : _db = firestore ?? FirebaseFirestore.instance;
 
   Stream<List<MessBillEntry>> streamMessBills({int limit = 50}) {
     return _db
@@ -24,4 +24,3 @@ class MessBillsService {
     });
   }
 }
-

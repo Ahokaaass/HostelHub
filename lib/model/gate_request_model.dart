@@ -62,7 +62,9 @@ class GateRequest {
       time: d['time'] ?? '',
       reason: d['reason'] ?? '',
       studentId: d['studentId'] ?? '',
-      createdAt: d['createdAt'] is Timestamp ? d['createdAt'] as Timestamp : null,
+      createdAt: d['createdAt'] is Timestamp
+          ? d['createdAt'] as Timestamp
+          : null,
       status: d['status'] ?? GateStatus.pending,
       matronDeclineReason: d['matronDeclineReason'],
       rtDeclineReason: d['rtDeclineReason'],
@@ -167,6 +169,20 @@ class GateRequestService {
   static Stream<List<GateRequest>> streamForMatron() {
     return _col
         .where('status', isEqualTo: GateStatus.pending)
+        .snapshots()
+        .map((s) => s.docs.map(GateRequest.fromDoc).toList());
+  }
+
+  static Stream<List<GateRequest>> streamForMatronAll() {
+    return _col
+        .where(
+          'status',
+          whereIn: [
+            GateStatus.pending,
+            GateStatus.matronForward,
+            GateStatus.matronDecline,
+          ],
+        )
         .snapshots()
         .map((s) => s.docs.map(GateRequest.fromDoc).toList());
   }

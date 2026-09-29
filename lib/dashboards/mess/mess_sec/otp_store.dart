@@ -5,10 +5,10 @@ class OtpStore {
   static String? phone;
 
   static void reset() {
-    otp           = null;
-    otpSubmitted  = false;
-    approved      = false;
-    phone         = null;
+    otp = null;
+    otpSubmitted = false;
+    approved = false;
+    phone = null;
   }
 
   static bool verifyOtp(String enteredOtp) {

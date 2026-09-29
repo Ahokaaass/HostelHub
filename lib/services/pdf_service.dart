@@ -42,10 +42,7 @@ class PdfPurchaseData {
   final DateTime date;
   final List<PdfPurchaseItem> items;
 
-  const PdfPurchaseData({
-    required this.date,
-    required this.items,
-  });
+  const PdfPurchaseData({required this.date, required this.items});
 }
 
 class PdfOrderItem {
@@ -64,10 +61,7 @@ class PdfOrderData {
   final DateTime? date;
   final List<PdfOrderItem> items;
 
-  const PdfOrderData({
-    required this.date,
-    required this.items,
-  });
+  const PdfOrderData({required this.date, required this.items});
 }
 
 class PdfService {
@@ -115,7 +109,10 @@ class PdfService {
   Future<Uint8List> generatePurchasePdf(PdfPurchaseData data) async {
     final doc = pw.Document();
     final generatedAt = DateTime.now();
-    final totalExpenditure = data.items.fold<num>(0, (sum, item) => sum + item.total);
+    final totalExpenditure = data.items.fold<num>(
+      0,
+      (sum, item) => sum + item.total,
+    );
 
     doc.addPage(
       pw.MultiPage(
@@ -215,20 +212,14 @@ class PdfService {
   pw.Widget _title(String text) {
     return pw.Text(
       text,
-      style: pw.TextStyle(
-        fontSize: 22,
-        fontWeight: pw.FontWeight.bold,
-      ),
+      style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
     );
   }
 
   pw.Widget _sectionTitle(String text) {
     return pw.Text(
       text,
-      style: pw.TextStyle(
-        fontSize: 14,
-        fontWeight: pw.FontWeight.bold,
-      ),
+      style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
     );
   }
 
@@ -249,7 +240,10 @@ class PdfService {
       children: cells
           .map(
             (cell) => pw.Padding(
-              padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+              padding: const pw.EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 7,
+              ),
               child: pw.Text(
                 cell,
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
@@ -265,7 +259,10 @@ class PdfService {
       children: cells
           .map(
             (cell) => pw.Padding(
-              padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+              padding: const pw.EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 7,
+              ),
               child: pw.Text(cell),
             ),
           )

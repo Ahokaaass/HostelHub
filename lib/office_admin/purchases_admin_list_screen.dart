@@ -78,7 +78,8 @@ class _PurchasesAdminListScreenState extends State<PurchasesAdminListScreen> {
       final bytes = await _pdfService.generatePurchasePdf(pdfData);
       await Printing.sharePdf(
         bytes: bytes,
-        filename: 'purchased_items_${DateTime.now().millisecondsSinceEpoch}.pdf',
+        filename:
+            'purchased_items_${DateTime.now().millisecondsSinceEpoch}.pdf',
       );
     } catch (e) {
       if (!mounted) return;
@@ -103,9 +104,7 @@ class _PurchasesAdminListScreenState extends State<PurchasesAdminListScreen> {
 
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppBar(
-        title: const Text('Purchases (Admin)'),
-      ),
+      appBar: AppBar(title: const Text('Purchases (Admin)')),
       body: SafeArea(
         child: Column(
           children: [
@@ -120,11 +119,19 @@ class _PurchasesAdminListScreenState extends State<PurchasesAdminListScreen> {
                     children: [
                       FilledButton.tonal(
                         onPressed: _pickStart,
-                        child: Text(_start == null ? 'Pick start date' : 'From: ${_formatDate(_start!)}'),
+                        child: Text(
+                          _start == null
+                              ? 'Pick start date'
+                              : 'From: ${_formatDate(_start!)}',
+                        ),
                       ),
                       FilledButton.tonal(
                         onPressed: _pickEnd,
-                        child: Text(_end == null ? 'Pick end date' : 'To: ${_formatDate(_end!)}'),
+                        child: Text(
+                          _end == null
+                              ? 'Pick end date'
+                              : 'To: ${_formatDate(_end!)}',
+                        ),
                       ),
                       OutlinedButton(
                         onPressed: _clearFilter,
@@ -147,10 +154,7 @@ class _PurchasesAdminListScreenState extends State<PurchasesAdminListScreen> {
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: _service.streamPurchases(
-                  start: _start,
-                  end: _end,
-                ),
+                stream: _service.streamPurchases(start: _start, end: _end),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -170,8 +174,10 @@ class _PurchasesAdminListScreenState extends State<PurchasesAdminListScreen> {
                     final date = dateTs?.toDate();
                     return _PurchaseRow(
                       itemName: data['itemName']?.toString() ?? '',
-                      quantity: data['quantity'] is num ? (data['quantity'] as num) : 0,
-                        unit: data['unit']?.toString() ?? '-',
+                      quantity: data['quantity'] is num
+                          ? (data['quantity'] as num)
+                          : 0,
+                      unit: data['unit']?.toString() ?? '-',
                       price: data['price'] is num ? (data['price'] as num) : 0,
                       total: data['total'] is num ? (data['total'] as num) : 0,
                       date: date,
@@ -246,7 +252,8 @@ class _PurchasesAdminListScreenState extends State<PurchasesAdminListScreen> {
                               SizedBox(
                                 width: double.infinity,
                                 child: OutlinedButton.icon(
-                                  onPressed: () => _downloadPurchasePdf(purchases),
+                                  onPressed: () =>
+                                      _downloadPurchasePdf(purchases),
                                   icon: const Icon(Icons.download_rounded),
                                   label: const Text('Download PDF'),
                                 ),
@@ -272,7 +279,9 @@ class _PurchasesAdminListScreenState extends State<PurchasesAdminListScreen> {
 
                   final Map<DateTime, List<_PurchaseRow>> grouped = {};
                   for (final p in purchases) {
-                    final key = p.date == null ? DateTime(1970) : _dayKey(p.date!);
+                    final key = p.date == null
+                        ? DateTime(1970)
+                        : _dayKey(p.date!);
                     grouped.putIfAbsent(key, () => []).add(p);
                   }
 
@@ -290,7 +299,8 @@ class _PurchasesAdminListScreenState extends State<PurchasesAdminListScreen> {
                             SizedBox(
                               width: double.infinity,
                               child: OutlinedButton.icon(
-                                onPressed: () => _downloadPurchasePdf(purchases),
+                                onPressed: () =>
+                                    _downloadPurchasePdf(purchases),
                                 icon: const Icon(Icons.download_rounded),
                                 label: const Text('Download PDF'),
                               ),
@@ -330,11 +340,12 @@ class _PurchasesAdminListScreenState extends State<PurchasesAdminListScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 10),
-                                ...items.map((p) => Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 12),
-                                      child: _PurchaseCard(purchase: p),
-                                    )),
+                                ...items.map(
+                                  (p) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: _PurchaseCard(purchase: p),
+                                  ),
+                                ),
                               ],
                             );
                           },
@@ -380,8 +391,7 @@ class _PurchaseCard extends StatelessWidget {
       '${dt.month.toString().padLeft(2, '0')}/'
       '${dt.year}';
 
-  String _numText(num n) =>
-      n.toStringAsFixed(2).replaceAll('.00', '');
+  String _numText(num n) => n.toStringAsFixed(2).replaceAll('.00', '');
 
   @override
   Widget build(BuildContext context) {
@@ -389,9 +399,7 @@ class _PurchaseCard extends StatelessWidget {
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -399,11 +407,17 @@ class _PurchaseCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.shopping_cart_rounded, size: 18, color: Color(0xFF1565C0)),
+                const Icon(
+                  Icons.shopping_cart_rounded,
+                  size: 18,
+                  color: Color(0xFF1565C0),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    purchase.itemName.isEmpty ? 'Unknown item' : purchase.itemName,
+                    purchase.itemName.isEmpty
+                        ? 'Unknown item'
+                        : purchase.itemName,
                     style: const TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 14,
@@ -456,7 +470,7 @@ class Kv extends StatelessWidget {
   final String k;
   final String v;
 
-  const Kv(this.k, this.v);
+  const Kv(this.k, this.v, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -486,4 +500,3 @@ class Kv extends StatelessWidget {
     );
   }
 }
-

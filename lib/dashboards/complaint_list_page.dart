@@ -683,15 +683,15 @@ class _ComplaintListPageState extends State<ComplaintListPage> {
                                       DateTime bTime = DateTime(2000);
                                       final aRaw = aData['createdAt'];
                                       final bRaw = bData['createdAt'];
-                                      if (aRaw is String)
+                                      if (aRaw is String) {
                                         aTime =
                                             DateTime.tryParse(aRaw) ?? aTime;
-                                      else if (aRaw != null)
+                                      } else if (aRaw != null)
                                         aTime = (aRaw as dynamic).toDate();
-                                      if (bRaw is String)
+                                      if (bRaw is String) {
                                         bTime =
                                             DateTime.tryParse(bRaw) ?? bTime;
-                                      else if (bRaw != null)
+                                      } else if (bRaw != null)
                                         bTime = (bRaw as dynamic).toDate();
                                       return bTime.compareTo(aTime);
                                     });

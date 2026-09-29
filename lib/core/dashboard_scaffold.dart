@@ -7,11 +7,11 @@ import 'session.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared theme constants — import these in any screen for consistency
 // ─────────────────────────────────────────────────────────────────────────────
-const kBlue       = Color(0xFF1565C0);
-const kBlueLight  = Color(0xFF1E88E5);
-const kBlueTint   = Color(0xFFE8F0FE);
+const kBlue = Color(0xFF1565C0);
+const kBlueLight = Color(0xFF1E88E5);
+const kBlueTint = Color(0xFFE8F0FE);
 const kBlueBorder = Color(0xFFBBD0F8);
-const kBgColor    = Color(0xFFF5F8FF);
+const kBgColor = Color(0xFFF5F8FF);
 
 class DashboardScaffold extends StatelessWidget {
   final String dashboardName;
@@ -30,7 +30,7 @@ class DashboardScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String? userId = Session.userId;
-    final String hostel  = Session.hostel ?? '';
+    final String hostel = Session.hostel ?? '';
 
     return Scaffold(
       backgroundColor: kBgColor,
@@ -46,14 +46,14 @@ class DashboardScaffold extends StatelessWidget {
                 colors: [kBlue, kBlueLight],
               ),
               borderRadius: BorderRadius.only(
-                bottomLeft : Radius.circular(30),
+                bottomLeft: Radius.circular(30),
                 bottomRight: Radius.circular(30),
               ),
               boxShadow: [
                 BoxShadow(
-                  color     : Color(0x351565C0),
+                  color: Color(0x351565C0),
                   blurRadius: 20,
-                  offset    : Offset(0, 8),
+                  offset: Offset(0, 8),
                 ),
               ],
             ),
@@ -72,21 +72,24 @@ class DashboardScaffold extends StatelessWidget {
                         Row(
                           children: [
                             Container(
-                              width : 40,
+                              width: 40,
                               height: 40,
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: const [
                                   BoxShadow(
-                                    color     : Color(0x201565C0),
+                                    color: Color(0x201565C0),
                                     blurRadius: 8,
-                                    offset    : Offset(0, 2),
+                                    offset: Offset(0, 2),
                                   ),
                                 ],
                               ),
-                              child: const Icon(Icons.apartment_rounded,
-                                  size: 22, color: kBlue),
+                              child: const Icon(
+                                Icons.apartment_rounded,
+                                size: 22,
+                                color: kBlue,
+                              ),
                             ),
                             const SizedBox(width: 10),
                             Column(
@@ -95,8 +98,8 @@ class DashboardScaffold extends StatelessWidget {
                                 const Text(
                                   'HostelHub',
                                   style: TextStyle(
-                                    color     : Colors.white,
-                                    fontSize  : 16,
+                                    color: Colors.white,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.w800,
                                     letterSpacing: 0.2,
                                   ),
@@ -105,8 +108,8 @@ class DashboardScaffold extends StatelessWidget {
                                   Text(
                                     hostel,
                                     style: TextStyle(
-                                      color     : Colors.white.withOpacity(0.72),
-                                      fontSize  : 11,
+                                      color: Colors.white.withOpacity(0.72),
+                                      fontSize: 11,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -122,40 +125,41 @@ class DashboardScaffold extends StatelessWidget {
                             Stack(
                               children: [
                                 _iconBtn(
-                                  icon : Icons.notifications_outlined,
+                                  icon: Icons.notifications_outlined,
                                   solid: false,
                                   onTap: userId == null
                                       ? null
                                       : () => Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) =>
-                                                  NotificationsPage(
-                                                      userId: userId),
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => NotificationsPage(
+                                              userId: userId,
                                             ),
                                           ),
+                                        ),
                                 ),
                                 if (userId != null)
-                                  StreamBuilder<
-                                      List<QueryDocumentSnapshot>>(
-                                    stream: NotificationService
-                                        .unreadForUser(userId),
+                                  StreamBuilder<List<QueryDocumentSnapshot>>(
+                                    stream: NotificationService.unreadForUser(
+                                      userId,
+                                    ),
                                     builder: (context, snapshot) {
                                       if (!snapshot.hasData ||
                                           snapshot.data!.isEmpty) {
                                         return const SizedBox();
                                       }
-                                      final hasEmergency =
-                                          snapshot.data!.any((doc) {
-                                        final d = doc.data()
-                                            as Map<String, dynamic>;
+                                      final hasEmergency = snapshot.data!.any((
+                                        doc,
+                                      ) {
+                                        final d =
+                                            doc.data() as Map<String, dynamic>;
                                         return d['type'] == 'emergency';
                                       });
                                       return Positioned(
                                         right: 4,
-                                        top  : 4,
+                                        top: 4,
                                         child: Container(
-                                          width : 14,
+                                          width: 14,
                                           height: 14,
                                           decoration: const BoxDecoration(
                                             color: Colors.redAccent,
@@ -164,7 +168,7 @@ class DashboardScaffold extends StatelessWidget {
                                           child: hasEmergency
                                               ? const Icon(
                                                   Icons.warning_rounded,
-                                                  size : 9,
+                                                  size: 9,
                                                   color: Colors.white,
                                                 )
                                               : null,
@@ -178,7 +182,7 @@ class DashboardScaffold extends StatelessWidget {
 
                             // ── Profile ────────────────────────────────────
                             _iconBtn(
-                              icon : Icons.person_outline_rounded,
+                              icon: Icons.person_outline_rounded,
                               solid: true,
                               onTap: onProfileTap,
                             ),
@@ -193,8 +197,8 @@ class DashboardScaffold extends StatelessWidget {
                     Text(
                       dashboardName,
                       style: const TextStyle(
-                        color     : Colors.white,
-                        fontSize  : 22,
+                        color: Colors.white,
+                        fontSize: 22,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.3,
                         height: 1.2,
@@ -205,7 +209,9 @@ class DashboardScaffold extends StatelessWidget {
                     // ── User badge ──────────────────────────────────────
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 5),
+                        horizontal: 12,
+                        vertical: 5,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.18),
                         borderRadius: BorderRadius.circular(20),
@@ -213,14 +219,17 @@ class DashboardScaffold extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.person_rounded,
-                              size: 13, color: Colors.white70),
+                          const Icon(
+                            Icons.person_rounded,
+                            size: 13,
+                            color: Colors.white70,
+                          ),
                           const SizedBox(width: 5),
                           Text(
                             userName,
                             style: const TextStyle(
-                              color     : Colors.white,
-                              fontSize  : 12,
+                              color: Colors.white,
+                              fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -255,30 +264,25 @@ class DashboardScaffold extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width : 40,
+        width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: solid
-              ? Colors.white
-              : Colors.white.withOpacity(0.18),
+          color: solid ? Colors.white : Colors.white.withOpacity(0.18),
           borderRadius: BorderRadius.circular(12),
           border: solid
               ? null
-              : Border.all(
-                  color: Colors.white.withOpacity(0.3), width: 1),
+              : Border.all(color: Colors.white.withOpacity(0.3), width: 1),
           boxShadow: solid
               ? const [
                   BoxShadow(
-                    color     : Color(0x201565C0),
+                    color: Color(0x201565C0),
                     blurRadius: 8,
-                    offset    : Offset(0, 2),
-                  )
+                    offset: Offset(0, 2),
+                  ),
                 ]
               : null,
         ),
-        child: Icon(icon,
-            size : 22,
-            color: solid ? kBlue : Colors.white),
+        child: Icon(icon, size: 22, color: solid ? kBlue : Colors.white),
       ),
     );
   }

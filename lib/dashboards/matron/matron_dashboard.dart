@@ -22,7 +22,7 @@ class _MatronDashboardState extends State<MatronDashboard> {
   static const _userId = 'matron@nila';
 
   String _userName = '';
-  bool   _loading  = true;
+  bool _loading = true;
 
   @override
   void initState() {
@@ -33,7 +33,9 @@ class _MatronDashboardState extends State<MatronDashboard> {
   Future<void> _loadUserName() async {
     try {
       final doc = await FirebaseFirestore.instance
-          .collection('staff').doc(_userId).get();
+          .collection('staff')
+          .doc(_userId)
+          .get();
       setState(() => _userName = doc.data()?['name'] ?? 'Matron');
     } catch (_) {
       setState(() => _userName = 'Matron');
@@ -46,59 +48,77 @@ class _MatronDashboardState extends State<MatronDashboard> {
   Widget build(BuildContext context) {
     return DashboardScaffold(
       dashboardName: 'Matron Dashboard',
-      userName     : _loading ? '...' : _userName,
-      onProfileTap : () => Navigator.push(context,
-          MaterialPageRoute(
-              builder: (_) => const StaffProfilePage(userId: _userId))),
+      userName: _loading ? '...' : _userName,
+      onProfileTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const StaffProfilePage(userId: _userId),
+        ),
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Services',
-              style: TextStyle(
-                  fontSize  : 18,
-                  fontWeight: FontWeight.bold,
-                  color     : Color(0xFF1565C0))),
+          const Text(
+            'Services',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1565C0),
+            ),
+          ),
           const SizedBox(height: 16),
 
           GridView.count(
-            shrinkWrap      : true,
-            physics         : const NeverScrollableScrollPhysics(),
-            crossAxisCount  : 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
             crossAxisSpacing: 16,
-            mainAxisSpacing : 16,
+            mainAxisSpacing: 16,
             children: [
               ServiceTile(
-                icon : Icons.fact_check_rounded,
+                icon: Icons.fact_check_rounded,
                 title: 'Attendance',
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(
-                        builder: (_) => const AttendanceViewPage())),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AttendanceViewPage()),
+                ),
               ),
               ServiceTile(
-                icon : Icons.directions_walk_rounded,
+                icon: Icons.directions_walk_rounded,
                 title: 'Outgoing Records',
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(
-                        builder: (_) => const OutgoingCategoryPage())),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const OutgoingCategoryPage(),
+                  ),
+                ),
               ),
               ServiceTile(
-                icon : Icons.assignment_rounded,
+                icon: Icons.assignment_rounded,
                 title: 'Requests & Complaints',
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(
-                        builder: (_) => const RequestComplaintPage())),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const RequestComplaintPage(),
+                  ),
+                ),
               ),
               ServiceTile(
-                icon : Icons.notifications_rounded,
+                icon: Icons.notifications_rounded,
                 title: 'Send Notification',
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(
-                        builder: (_) => const SendNotificationPage())),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SendNotificationPage(),
+                  ),
+                ),
               ),
               EmergencyServiceTile(
                 userId: _userId,
-                onTap : () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const EmergencyPage())),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const EmergencyPage()),
+                ),
               ),
             ],
           ),

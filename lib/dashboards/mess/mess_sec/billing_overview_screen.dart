@@ -19,17 +19,18 @@ class _BillingOverviewScreenState extends State<BillingOverviewScreen> {
   @override
   void initState() {
     super.initState();
-    vegStudents = List<Map<String, String>>.from(MessAdminSampleData.vegStudents)
-        .map((m) => Map<String, String>.from(m))
-        .toList();
-    nonVegStudents = List<Map<String, String>>.from(MessAdminSampleData.nonVegStudents)
-        .map((m) => Map<String, String>.from(m))
-        .toList();
+    vegStudents = List<Map<String, String>>.from(
+      MessAdminSampleData.vegStudents,
+    ).map((m) => Map<String, String>.from(m)).toList();
+    nonVegStudents = List<Map<String, String>>.from(
+      MessAdminSampleData.nonVegStudents,
+    ).map((m) => Map<String, String>.from(m)).toList();
   }
 
   int get vegTotal => vegStudents.length;
   int get nonVegTotal => nonVegStudents.length;
-  int get totalCost => (vegTotal * MessAdminSampleData.vegPrice) +
+  int get totalCost =>
+      (vegTotal * MessAdminSampleData.vegPrice) +
       (nonVegTotal * MessAdminSampleData.nonVegPrice);
 
   Widget _card({required Widget child}) {
@@ -37,10 +38,7 @@ class _BillingOverviewScreenState extends State<BillingOverviewScreen> {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: borderRadius),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: child,
-      ),
+      child: Padding(padding: const EdgeInsets.all(16), child: child),
     );
   }
 
@@ -69,7 +67,10 @@ class _BillingOverviewScreenState extends State<BillingOverviewScreen> {
             children: [
               Text(
                 label,
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
@@ -192,10 +193,14 @@ class _BillingOverviewScreenState extends State<BillingOverviewScreen> {
           }),
           if (editable)
             GestureDetector(
-              onTap: () => setState(() => students.add({'name': 'New', 'room': '---'})),
+              onTap: () =>
+                  setState(() => students.add({'name': 'New', 'room': '---'})),
               child: Container(
                 margin: const EdgeInsets.only(top: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: accentColor.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(8),
@@ -226,9 +231,7 @@ class _BillingOverviewScreenState extends State<BillingOverviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F8FF),
-      appBar: AppBar(
-        title: const Text('Billing Overview'),
-      ),
+      appBar: AppBar(title: const Text('Billing Overview')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -256,7 +259,8 @@ class _BillingOverviewScreenState extends State<BillingOverviewScreen> {
                     _billRow(
                       icon: Icons.set_meal_rounded,
                       label: 'Non-Veg',
-                      calcText: '$nonVegTotal × ₹${MessAdminSampleData.nonVegPrice}',
+                      calcText:
+                          '$nonVegTotal × ₹${MessAdminSampleData.nonVegPrice}',
                       amountText:
                           '₹${nonVegTotal * MessAdminSampleData.nonVegPrice}',
                       color: Colors.orange.shade700,
@@ -299,7 +303,8 @@ class _BillingOverviewScreenState extends State<BillingOverviewScreen> {
                 children: [
                   Expanded(child: Container()),
                   FilledButton.tonal(
-                    onPressed: () => setState(() => editVegNonVeg = !editVegNonVeg),
+                    onPressed: () =>
+                        setState(() => editVegNonVeg = !editVegNonVeg),
                     child: Text(editVegNonVeg ? 'Save' : 'Edit'),
                   ),
                 ],
@@ -334,4 +339,3 @@ class _BillingOverviewScreenState extends State<BillingOverviewScreen> {
     );
   }
 }
-

@@ -3,13 +3,13 @@ import 'package:intl/intl.dart';
 import '../services/notification_service.dart';
 
 // ── Theme constants ───────────────────────────────────────────────────────────
-const _kBlue      = Color(0xFF1565C0);
+const _kBlue = Color(0xFF1565C0);
 const _kBlueLight = Color(0xFF1E88E5);
-const _kBlueTint  = Color(0xFFE8F0FE);
-const _kBorder    = Color(0xFFBBD0F8);
-const _kBg        = Color(0xFFF5F8FF);
-const _kText      = Color(0xFF1A1A2E);
-const _kSubtext   = Color(0xFF6B7280);
+const _kBlueTint = Color(0xFFE8F0FE);
+const _kBorder = Color(0xFFBBD0F8);
+const _kBg = Color(0xFFF5F8FF);
+const _kText = Color(0xFF1A1A2E);
+const _kSubtext = Color(0xFF6B7280);
 
 class NotificationsPage extends StatelessWidget {
   final String userId;
@@ -27,19 +27,19 @@ class NotificationsPage extends StatelessWidget {
             width: double.infinity,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin : Alignment.topLeft,
-                end   : Alignment.bottomRight,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: [_kBlue, _kBlueLight],
               ),
               borderRadius: BorderRadius.only(
-                bottomLeft : Radius.circular(28),
+                bottomLeft: Radius.circular(28),
                 bottomRight: Radius.circular(28),
               ),
               boxShadow: [
                 BoxShadow(
-                  color     : Color(0x351565C0),
+                  color: Color(0x351565C0),
                   blurRadius: 18,
-                  offset    : Offset(0, 6),
+                  offset: Offset(0, 6),
                 ),
               ],
             ),
@@ -52,33 +52,40 @@ class NotificationsPage extends StatelessWidget {
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Container(
-                        width : 38,
+                        width: 38,
                         height: 38,
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.18),
                           borderRadius: BorderRadius.circular(11),
                           border: Border.all(
-                              color: Colors.white.withOpacity(0.3)),
+                            color: Colors.white.withOpacity(0.3),
+                          ),
                         ),
-                        child: const Icon(Icons.arrow_back_rounded,
-                            color: Colors.white, size: 20),
+                        child: const Icon(
+                          Icons.arrow_back_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14),
                     const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Notifications',
-                            style: TextStyle(
-                                color     : Colors.white,
-                                fontSize  : 20,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.3)),
+                        Text(
+                          'Notifications',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
                         SizedBox(height: 2),
-                        Text('Announcements & alerts',
-                            style: TextStyle(
-                                color  : Colors.white70,
-                                fontSize: 12)),
+                        Text(
+                          'Announcements & alerts',
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
                       ],
                     ),
                   ],
@@ -94,7 +101,8 @@ class NotificationsPage extends StatelessWidget {
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(
-                      child: CircularProgressIndicator(color: _kBlue));
+                    child: CircularProgressIndicator(color: _kBlue),
+                  );
                 }
 
                 final docs = snapshot.data!.docs;
@@ -105,26 +113,32 @@ class NotificationsPage extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
-                          width : 64,
+                          width: 64,
                           height: 64,
                           decoration: BoxDecoration(
-                            color       : _kBlueTint,
+                            color: _kBlueTint,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Icon(Icons.notifications_off_rounded,
-                              color: _kBlue, size: 32),
+                          child: const Icon(
+                            Icons.notifications_off_rounded,
+                            color: _kBlue,
+                            size: 32,
+                          ),
                         ),
                         const SizedBox(height: 16),
-                        const Text('No notifications yet',
-                            style: TextStyle(
-                                color     : _kText,
-                                fontSize  : 16,
-                                fontWeight: FontWeight.w600)),
+                        const Text(
+                          'No notifications yet',
+                          style: TextStyle(
+                            color: _kText,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: 4),
-                        const Text('You\'re all caught up!',
-                            style: TextStyle(
-                                color  : _kSubtext,
-                                fontSize: 13)),
+                        const Text(
+                          'You\'re all caught up!',
+                          style: TextStyle(color: _kSubtext, fontSize: 13),
+                        ),
                       ],
                     ),
                   );
@@ -135,19 +149,19 @@ class NotificationsPage extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(20, 24, 20, 36),
                   itemCount: docs.length,
                   itemBuilder: (_, i) {
-                    final doc  = docs[i];
+                    final doc = docs[i];
                     final data = doc.data() as Map<String, dynamic>;
 
                     final bool isEmergency = data['type'] == 'emergency';
-                    final List readBy      = data['readBy'] ?? [];
-                    final bool isUnread    = !readBy.contains(userId);
+                    final List readBy = data['readBy'] ?? [];
+                    final bool isUnread = !readBy.contains(userId);
 
                     // Mark as read on tap for normal notifications
                     Future<void> markRead() async {
                       if (isUnread) {
                         await NotificationService.markRead(
                           notificationId: doc.id,
-                          userId        : userId,
+                          userId: userId,
                         );
                       }
                     }
@@ -155,16 +169,16 @@ class NotificationsPage extends StatelessWidget {
                     if (isEmergency) {
                       return _EmergencyBannerCard(
                         createdAt: data['createdAt']?.toDate(),
-                        isUnread : isUnread,
-                        onTap    : markRead,
+                        isUnread: isUnread,
+                        onTap: markRead,
                       );
                     }
 
                     return _NotificationCard(
-                      message  : data['message'] ?? '',
+                      message: data['message'] ?? '',
                       createdAt: data['createdAt']?.toDate(),
-                      isUnread : isUnread,
-                      onTap    : markRead,
+                      isUnread: isUnread,
+                      onTap: markRead,
                     );
                   },
                 );
@@ -179,9 +193,9 @@ class NotificationsPage extends StatelessWidget {
 
 // ── Normal notification card ──────────────────────────────────────────────────
 class _NotificationCard extends StatelessWidget {
-  final String    message;
+  final String message;
   final DateTime? createdAt;
-  final bool      isUnread;
+  final bool isUnread;
   final VoidCallback onTap;
 
   const _NotificationCard({
@@ -207,9 +221,10 @@ class _NotificationCard extends StatelessWidget {
           ),
           boxShadow: const [
             BoxShadow(
-                color     : Color(0x0C1565C0),
-                blurRadius: 12,
-                offset    : Offset(0, 4)),
+              color: Color(0x0C1565C0),
+              blurRadius: 12,
+              offset: Offset(0, 4),
+            ),
           ],
         ),
         child: Row(
@@ -217,7 +232,7 @@ class _NotificationCard extends StatelessWidget {
           children: [
             // Icon
             Container(
-              width : 44,
+              width: 44,
               height: 44,
               decoration: BoxDecoration(
                 color: isUnread ? _kBlueTint : const Color(0xFFF3F4F6),
@@ -226,7 +241,7 @@ class _NotificationCard extends StatelessWidget {
               child: Icon(
                 Icons.campaign_rounded,
                 color: isUnread ? _kBlue : _kSubtext,
-                size : 22,
+                size: 22,
               ),
             ),
             const SizedBox(width: 12),
@@ -241,14 +256,15 @@ class _NotificationCard extends StatelessWidget {
                         child: Text(
                           'Announcement',
                           style: TextStyle(
-                              fontSize  : 12,
-                              fontWeight: FontWeight.w600,
-                              color     : isUnread ? _kBlue : _kSubtext),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: isUnread ? _kBlue : _kSubtext,
+                          ),
                         ),
                       ),
                       if (isUnread)
                         Container(
-                          width : 8,
+                          width: 8,
                           height: 8,
                           decoration: const BoxDecoration(
                             color: _kBlue,
@@ -261,18 +277,16 @@ class _NotificationCard extends StatelessWidget {
                   Text(
                     message,
                     style: TextStyle(
-                        fontSize  : 14,
-                        fontWeight: isUnread
-                            ? FontWeight.w600
-                            : FontWeight.w500,
-                        color     : _kText),
+                      fontSize: 14,
+                      fontWeight: isUnread ? FontWeight.w600 : FontWeight.w500,
+                      color: _kText,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   if (createdAt != null)
                     Text(
                       DateFormat("d MMM yyyy • h:mm a").format(createdAt!),
-                      style: const TextStyle(
-                          fontSize: 11, color: _kSubtext),
+                      style: const TextStyle(fontSize: 11, color: _kSubtext),
                     ),
                 ],
               ),
@@ -287,7 +301,7 @@ class _NotificationCard extends StatelessWidget {
 // ── Emergency masked banner card ──────────────────────────────────────────────
 class _EmergencyBannerCard extends StatelessWidget {
   final DateTime? createdAt;
-  final bool      isUnread;
+  final bool isUnread;
   final VoidCallback onTap;
 
   const _EmergencyBannerCard({
@@ -303,15 +317,15 @@ class _EmergencyBannerCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color       : Colors.white,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          border      : Border.all(
-              color: Colors.red.shade200, width: 1.5),
+          border: Border.all(color: Colors.red.shade200, width: 1.5),
           boxShadow: [
             BoxShadow(
-                color     : Colors.red.withOpacity(0.08),
-                blurRadius: 12,
-                offset    : const Offset(0, 4)),
+              color: Colors.red.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
         child: Column(
@@ -322,24 +336,27 @@ class _EmergencyBannerCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.red.shade600,
                 borderRadius: const BorderRadius.only(
-                  topLeft : Radius.circular(18),
+                  topLeft: Radius.circular(18),
                   topRight: Radius.circular(18),
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(12),  // reduced from 16
+              padding: const EdgeInsets.all(12), // reduced from 16
               child: Row(
                 children: [
                   Container(
-                    width : 36,   // reduced from 44
-                    height: 36,   // reduced from 44
+                    width: 36, // reduced from 44
+                    height: 36, // reduced from 44
                     decoration: BoxDecoration(
-                      color       : Colors.red.shade50,
+                      color: Colors.red.shade50,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(Icons.warning_rounded,
-                        color: Colors.red.shade600, size: 18),  // reduced from 22
+                    child: Icon(
+                      Icons.warning_rounded,
+                      color: Colors.red.shade600,
+                      size: 18,
+                    ), // reduced from 22
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -348,52 +365,66 @@ class _EmergencyBannerCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Text('Emergency Alert',
-                                style: TextStyle(
-                                    fontSize  : 11,   // reduced from 12
-                                    fontWeight: FontWeight.w700,
-                                    color     : Colors.red.shade600)),
+                            Text(
+                              'Emergency Alert',
+                              style: TextStyle(
+                                fontSize: 11, // reduced from 12
+                                fontWeight: FontWeight.w700,
+                                color: Colors.red.shade600,
+                              ),
+                            ),
                             const Spacer(),
                             if (isUnread)
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
-                                  color       : Colors.red.shade50,
+                                  color: Colors.red.shade50,
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
-                                      color: Colors.red.shade200),
+                                    color: Colors.red.shade200,
+                                  ),
                                 ),
-                                child: Text('NEW',
-                                    style: TextStyle(
-                                        fontSize  : 9,    // reduced from 10
-                                        fontWeight: FontWeight.w800,
-                                        color     : Colors.red.shade700)),
+                                child: Text(
+                                  'NEW',
+                                  style: TextStyle(
+                                    fontSize: 9, // reduced from 10
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.red.shade700,
+                                  ),
+                                ),
                               ),
                           ],
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          'New emergency reported in the hostel.',   // shortened text
+                          'New emergency reported in the hostel.', // shortened text
                           style: TextStyle(
-                              fontSize  : 12,   // reduced from 14
-                              fontWeight: FontWeight.w600,
-                              color     : _kText),
+                            fontSize: 12, // reduced from 14
+                            fontWeight: FontWeight.w600,
+                            color: _kText,
+                          ),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Check Emergency Alerts for details.',     // shortened text
+                          'Check Emergency Alerts for details.', // shortened text
                           style: TextStyle(
-                              fontSize: 11,   // reduced from 12
-                              color   : Colors.red.shade400),
+                            fontSize: 11, // reduced from 12
+                            color: Colors.red.shade400,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         if (createdAt != null)
                           Text(
-                            DateFormat("d MMM yyyy • h:mm a")
-                                .format(createdAt!),
+                            DateFormat(
+                              "d MMM yyyy • h:mm a",
+                            ).format(createdAt!),
                             style: const TextStyle(
-                                fontSize: 11, color: _kSubtext),
+                              fontSize: 11,
+                              color: _kSubtext,
+                            ),
                           ),
                       ],
                     ),

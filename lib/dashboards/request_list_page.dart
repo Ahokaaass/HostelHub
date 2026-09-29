@@ -298,8 +298,9 @@ class _RequestListPageState extends State<RequestListPage> {
               const <GateRequest>[];
           final allForRole = _requestsForRole(allDocs);
           final total = allForRole.length;
-          final pending =
-              allForRole.where((r) => r.status == _pendingStatus).length;
+          final pending = allForRole
+              .where((r) => r.status == _pendingStatus)
+              .length;
           final forwarded = allForRole.where(_isForwardedByMe).length;
           final declined = allForRole.where(_isDeclinedByMe).length;
 
@@ -318,8 +319,9 @@ class _RequestListPageState extends State<RequestListPage> {
           }).toList();
 
           visible.sort((a, b) {
-            final priorityCompare =
-                _sortPriority(a).compareTo(_sortPriority(b));
+            final priorityCompare = _sortPriority(
+              a,
+            ).compareTo(_sortPriority(b));
             if (priorityCompare != 0) return priorityCompare;
             return _sortDateTime(b).compareTo(_sortDateTime(a));
           });
@@ -775,10 +777,7 @@ class _RequestListPageState extends State<RequestListPage> {
           Container(
             width: 7,
             height: 7,
-            decoration: BoxDecoration(
-              color: dotColor,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
           ),
           const SizedBox(width: 5),
           Text(
@@ -962,7 +961,7 @@ class _RequestListPageState extends State<RequestListPage> {
             const Icon(Icons.cancel_outlined, color: Color(0xFFDC3545)),
             const SizedBox(width: 8),
             Text(
-              '${_declineLabel} Request',
+              '$_declineLabel Request',
               style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
             ),
           ],

@@ -4,7 +4,7 @@ class OrdersService {
   final FirebaseFirestore _db;
 
   OrdersService({FirebaseFirestore? firestore})
-      : _db = firestore ?? FirebaseFirestore.instance;
+    : _db = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _orders =>
       _db.collection('purchase_orders');

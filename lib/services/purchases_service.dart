@@ -4,7 +4,7 @@ class PurchasesService {
   final FirebaseFirestore _db;
 
   PurchasesService({FirebaseFirestore? firestore})
-      : _db = firestore ?? FirebaseFirestore.instance;
+    : _db = firestore ?? FirebaseFirestore.instance;
 
   Future<void> addPurchase({
     required String itemName,
@@ -31,20 +31,15 @@ class PurchasesService {
     DateTime? end,
     int? limit,
   }) {
-    Query<Map<String, dynamic>> q =
-        _db.collection('purchases').orderBy('date', descending: true);
+    Query<Map<String, dynamic>> q = _db
+        .collection('purchases')
+        .orderBy('date', descending: true);
 
     if (start != null) {
-      q = q.where(
-        'date',
-        isGreaterThanOrEqualTo: Timestamp.fromDate(start),
-      );
+      q = q.where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(start));
     }
     if (end != null) {
-      q = q.where(
-        'date',
-        isLessThanOrEqualTo: Timestamp.fromDate(end),
-      );
+      q = q.where('date', isLessThanOrEqualTo: Timestamp.fromDate(end));
     }
     if (limit != null) {
       q = q.limit(limit);
@@ -61,4 +56,3 @@ class PurchasesService {
     return purchasesQuery(start: start, end: end, limit: limit).snapshots();
   }
 }
-

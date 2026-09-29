@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-const _kBlue      = Color(0xFF1565C0);
-const _kBlueTint  = Color(0xFFE8F0FE);
-const _kBlueBorder= Color(0xFFBBD0F8);
+const _kBlue = Color(0xFF1565C0);
+const _kBlueTint = Color(0xFFE8F0FE);
+const _kBlueBorder = Color(0xFFBBD0F8);
 
 class ServiceTile extends StatelessWidget {
   final IconData icon;
-  final String   title;
+  final String title;
   final VoidCallback onTap;
 
   // Optional overrides for special tiles (e.g. alerts in orange)
@@ -25,15 +25,15 @@ class ServiceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color accent = accentColor ?? _kBlue;
-    final Color bg     = bgColor     ?? _kBlueTint;
+    final Color bg = bgColor ?? _kBlueTint;
 
     return Material(
-      color        : Colors.transparent,
-      borderRadius : BorderRadius.circular(20),
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
-        onTap        : onTap,
-        borderRadius : BorderRadius.circular(20),
-        splashColor  : accent.withOpacity(0.08),
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        splashColor: accent.withOpacity(0.08),
         highlightColor: accent.withOpacity(0.04),
         child: Container(
           decoration: BoxDecoration(
@@ -42,9 +42,9 @@ class ServiceTile extends StatelessWidget {
             border: Border.all(color: _kBlueBorder, width: 1.2),
             boxShadow: const [
               BoxShadow(
-                color     : Color(0x0C1565C0),
+                color: Color(0x0C1565C0),
                 blurRadius: 10,
-                offset    : Offset(0, 4),
+                offset: Offset(0, 4),
               ),
             ],
           ),
@@ -53,16 +53,16 @@ class ServiceTile extends StatelessWidget {
             children: [
               // ── Icon box ──────────────────────────────────────────────
               Container(
-                width : 54,
+                width: 54,
                 height: 54,
                 decoration: BoxDecoration(
-                  color        : Colors.white,
-                  borderRadius : BorderRadius.circular(16),
-                  boxShadow    : [
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
                     BoxShadow(
-                      color     : accent.withOpacity(0.15),
+                      color: accent.withOpacity(0.15),
                       blurRadius: 10,
-                      offset    : const Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -77,13 +77,13 @@ class ServiceTile extends StatelessWidget {
                 child: Text(
                   title,
                   textAlign: TextAlign.center,
-                  maxLines : 2,
-                  overflow : TextOverflow.ellipsis,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize  : 12,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color     : accent,
-                    height    : 1.3,
+                    color: accent,
+                    height: 1.3,
                     letterSpacing: 0.1,
                   ),
                 ),

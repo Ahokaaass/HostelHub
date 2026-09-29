@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'hdf_rent_page.dart';
 import 'hostel_funds_page.dart';
 
-const _kBlue      = Color(0xFF1565C0);
+const _kBlue = Color(0xFF1565C0);
 const _kBlueLight = Color(0xFF1E88E5);
-const _kBlueTint  = Color(0xFFE8F0FE);
-const _kBorder    = Color(0xFFBBD0F8);
-const _kBg        = Color(0xFFF5F8FF);
-const _kText      = Color(0xFF1A1A2E);
-const _kSubtext   = Color(0xFF6B7280);
+const _kBorder = Color(0xFFBBD0F8);
+const _kBg = Color(0xFFF5F8FF);
+const _kText = Color(0xFF1A1A2E);
+const _kSubtext = Color(0xFF6B7280);
 
 class BudgetPage extends StatelessWidget {
   const BudgetPage({super.key});
@@ -55,26 +54,34 @@ class BudgetPage extends StatelessWidget {
                           color: Colors.white.withOpacity(0.18),
                           borderRadius: BorderRadius.circular(11),
                           border: Border.all(
-                              color: Colors.white.withOpacity(0.3)),
+                            color: Colors.white.withOpacity(0.3),
+                          ),
                         ),
-                        child: const Icon(Icons.arrow_back_rounded,
-                            color: Colors.white, size: 20),
+                        child: const Icon(
+                          Icons.arrow_back_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14),
                     const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Budget Management',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.3)),
+                        Text(
+                          'Budget Management',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
                         SizedBox(height: 2),
-                        Text('Manage payments & hostel funds',
-                            style: TextStyle(
-                                color: Colors.white70, fontSize: 12)),
+                        Text(
+                          'Manage payments & hostel funds',
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
                       ],
                     ),
                   ],
@@ -97,20 +104,19 @@ class BudgetPage extends StatelessWidget {
                         'Mark monthly HDF and rent payments for each student',
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (_) => const HdfRentPage()),
+                      MaterialPageRoute(builder: (_) => const HdfRentPage()),
                     ),
                   ),
                   const SizedBox(height: 16),
                   _BudgetOptionCard(
                     icon: Icons.folder_open_rounded,
                     title: 'Hostel Funds',
-                    subtitle:
-                        'Upload, view and manage hostel fund PDF reports',
+                    subtitle: 'Upload, view and manage hostel fund PDF reports',
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const HostelFundsPage()),
+                        builder: (_) => const HostelFundsPage(),
+                      ),
                     ),
                   ),
                 ],
@@ -149,9 +155,10 @@ class _BudgetOptionCard extends StatelessWidget {
           border: Border.all(color: _kBorder, width: 1.2),
           boxShadow: const [
             BoxShadow(
-                color: Color(0x0F1565C0),
-                blurRadius: 12,
-                offset: Offset(0, 4)),
+              color: Color(0x0F1565C0),
+              blurRadius: 12,
+              offset: Offset(0, 4),
+            ),
           ],
         ),
         child: Row(
@@ -174,20 +181,27 @@ class _BudgetOptionCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title,
-                      style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: _kText)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: _kText,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text(subtitle,
-                      style: const TextStyle(
-                          fontSize: 13, color: _kSubtext)),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 13, color: _kSubtext),
+                  ),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded,
-                size: 16, color: _kSubtext),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+              color: _kSubtext,
+            ),
           ],
         ),
       ),

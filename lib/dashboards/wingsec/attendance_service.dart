@@ -33,10 +33,7 @@ class AttendanceService {
       "locked": false,
     }, SetOptions(merge: true));
 
-    await ref.set({
-      "name": name,
-      "room": room,
-    }, SetOptions(merge: true));
+    await ref.set({"name": name, "room": room}, SetOptions(merge: true));
 
     await ref.collection('days').doc(dateKey).set({
       "status": status,
@@ -44,8 +41,7 @@ class AttendanceService {
     });
 
     final snap = await ref.collection('days').get();
-    final present =
-        snap.docs.where((d) => d['status'] == 'present').length;
+    final present = snap.docs.where((d) => d['status'] == 'present').length;
 
     await ref.set({
       "present": present,
@@ -54,8 +50,6 @@ class AttendanceService {
   }
 
   static Future<void> finalSubmit() async {
-    await _db.collection('attendance').doc(monthId()).update({
-      "locked": true,
-    });
+    await _db.collection('attendance').doc(monthId()).update({"locked": true});
   }
 }

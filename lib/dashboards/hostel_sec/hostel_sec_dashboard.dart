@@ -3,7 +3,11 @@ import '../../core/dashboard_scaffold.dart';
 import '../../core/service_tile.dart';
 import '../matron/attendance_view_page.dart';
 import 'hostel_sec_complaints_page.dart';
+import 'hostel_sec_funds_page.dart';
+import '../../student/student_data.dart';
+import '../../student/profile/profile_page.dart';
 
+// ── Blue palette ──────────────────────────────────────────────────────────────
 const _kBlue = Color(0xFF1565C0);
 const _kBlueLight = Color(0xFF1E88E5);
 const _kBlueTint = Color(0xFFE8F0FE);
@@ -19,6 +23,12 @@ class HostelSecretaryDashboard extends StatelessWidget {
     return DashboardScaffold(
       dashboardName: 'Hostel Secretary',
       userName: 'Hostel Secretary',
+      onProfileTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ProfilePage(admissionNo: StudentData.admissionNo),
+        ),
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -195,7 +205,7 @@ class HostelSecretaryDashboard extends StatelessWidget {
 
           const SizedBox(height: 28),
 
-          // ── Services Label ────────────────────────────────────────────
+          // ── Services label ────────────────────────────────────────────
           Row(
             children: [
               Container(
@@ -226,7 +236,7 @@ class HostelSecretaryDashboard extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // ── Services Grid ─────────────────────────────────────────────
+          // ── Services grid ─────────────────────────────────────────────
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -245,6 +255,7 @@ class HostelSecretaryDashboard extends StatelessWidget {
                   ),
                 ),
               ),
+
               ServiceTile(
                 icon: Icons.calendar_month_rounded,
                 title: 'Attendance',
@@ -254,14 +265,14 @@ class HostelSecretaryDashboard extends StatelessWidget {
                 ),
               ),
 
-              // ServiceTile(
-              //   icon: Icons.picture_as_pdf_rounded,
-              //   title: 'Fund Reports',
-              //   onTap: () => Navigator.push(
-              //     context,
-              //     MaterialPageRoute(builder: (_) => HostelSecFundsPage()),
-              //   ),
-              // ),
+              ServiceTile(
+                icon: Icons.picture_as_pdf_rounded,
+                title: 'Fund Reports',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HostelSecFundsPage()),
+                ),
+              ),
             ],
           ),
         ],
@@ -269,7 +280,6 @@ class HostelSecretaryDashboard extends StatelessWidget {
     );
   }
 
-  // ── Role switch bottom sheet ──────────────────────────────────────────────
   void _showSwitchSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -287,6 +297,7 @@ class HostelSecretaryDashboard extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Handle
             Container(
               width: 40,
               height: 4,
@@ -296,6 +307,7 @@ class HostelSecretaryDashboard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
+
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(

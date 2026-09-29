@@ -30,7 +30,7 @@ class StudentDashboardViewModel {
     required Map<String, dynamic> data,
   }) {
     final rawName = data['name'];
-    final name = rawName == null ? null : rawName.toString().trim();
+    final name = rawName?.toString().trim();
     return StudentDashboardViewModel(
       admissionNo: admissionNo,
       userName: (name == null || name.isEmpty) ? null : name,
@@ -40,4 +40,3 @@ class StudentDashboardViewModel {
     );
   }
 }
-

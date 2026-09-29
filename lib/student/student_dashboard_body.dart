@@ -21,20 +21,17 @@ const _kBlueBorder = Color(0xFFBBD0F8);
 class StudentDashboardBody extends StatelessWidget {
   final StudentDashboardViewModel vm;
 
-  const StudentDashboardBody({
-    super.key,
-    required this.vm,
-  });
+  const StudentDashboardBody({super.key, required this.vm});
 
   static Widget sectionLabel(String text) => Text(
-        text,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w800,
-          color: Color(0xFF1A1A2E),
-          letterSpacing: -0.2,
-        ),
-      );
+    text,
+    style: const TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w800,
+      color: Color(0xFF1A1A2E),
+      letterSpacing: -0.2,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -131,9 +128,7 @@ class StudentDashboardBody extends StatelessWidget {
               title: 'My Payments',
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const StudentPaymentPage(),
-                ),
+                MaterialPageRoute(builder: (_) => const StudentPaymentPage()),
               ),
             ),
             ServiceTile(
@@ -141,18 +136,14 @@ class StudentDashboardBody extends StatelessWidget {
               title: 'Mess',
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const StudentMessPage(),
-                ),
+                MaterialPageRoute(builder: (_) => const StudentMessPage()),
               ),
             ),
             EmergencyServiceTile(
               userId: vm.admissionNo,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const StudentEmergencyPage(),
-                ),
+                MaterialPageRoute(builder: (_) => const StudentEmergencyPage()),
               ),
             ),
           ],
@@ -245,4 +236,3 @@ class _RoleSwitchCard extends StatelessWidget {
     );
   }
 }
-

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
-import '../student_data.dart';
+import '../student/student_data.dart';
 
 // ── Palette ───────────────────────────────────────────────────────────────────
 const _kBlue = Color(0xFF1565C0);
@@ -16,14 +16,14 @@ const _kGreen = Color(0xFF2E7D32);
 const _kGreenBg = Color(0xFFE8F5E9);
 const _kGreenBdr = Color(0xFFA5D6A7);
 
-class StudentPaymentPage extends StatefulWidget {
-  const StudentPaymentPage({super.key});
+class ParentFeePage extends StatefulWidget {
+  const ParentFeePage({super.key});
 
   @override
-  State<StudentPaymentPage> createState() => _StudentPaymentPageState();
+  State<ParentFeePage> createState() => _ParentFeePageState();
 }
 
-class _StudentPaymentPageState extends State<StudentPaymentPage>
+class _ParentFeePageState extends State<ParentFeePage>
     with SingleTickerProviderStateMixin {
   late TabController _tab;
 
@@ -96,27 +96,30 @@ class _StudentPaymentPageState extends State<StudentPaymentPage>
                           ),
                         ),
                         const SizedBox(width: 14),
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'My Payments',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.3,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Fee Details',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.3,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 2),
-                            Text(
-                              'View your HDF & Rent payment history',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
+                              const SizedBox(height: 2),
+                              Text(
+                                StudentData.name,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -200,9 +203,9 @@ class _PaymentList extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('users')
-          .doc(StudentData.admissionNo)
+          .doc(StudentData.admissionNo) // same student's data
           .collection('budgets')
-          .where(_field, isEqualTo: true) // only paid months
+          .where(_field, isEqualTo: true)
           .snapshots(),
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
@@ -316,7 +319,6 @@ class _PaymentList extends StatelessWidget {
     );
   }
 
-  // Convert month name to number for sorting
   int _monthNum(String name) {
     const months = [
       'January',
@@ -434,7 +436,6 @@ class _MonthCard extends StatelessWidget {
     required this.icon,
   });
 
-  // Short month abbreviation
   String get _shortMonth {
     const map = {
       'January': 'JAN',
@@ -598,7 +599,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Your paid $typeLabel months will appear here',
+            'Your ward\'s paid $typeLabel months will appear here',
             style: const TextStyle(color: _kSubtext, fontSize: 13),
             textAlign: TextAlign.center,
           ),

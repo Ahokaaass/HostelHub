@@ -609,7 +609,8 @@ class _MessSecScreenState extends State<MessSecScreen> {
                             .snapshots(),
                         builder: (context, snapshot) {
                           final count = snapshot.data?.docs.length ?? 0;
-                          final desc = snapshot.connectionState ==
+                          final desc =
+                              snapshot.connectionState ==
                                   ConnectionState.waiting
                               ? 'Loading...'
                               : '$count pending';
@@ -623,7 +624,10 @@ class _MessSecScreenState extends State<MessSecScreen> {
                                 builder: (_) => const MessComplaintsScreen(),
                               ),
                             ),
-                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                            trailing: const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                            ),
                           );
                         },
                       ),
@@ -660,7 +664,8 @@ class _MessSecScreenState extends State<MessSecScreen> {
                       children: [
                         Text(
                           'Add Inventory Item',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: _kText,
                               ),
@@ -698,7 +703,9 @@ class _MessSecScreenState extends State<MessSecScreen> {
                                       hint: 'Enter quantity',
                                       icon: Icons.scale_outlined,
                                       keyboardType:
-                                          const TextInputType.numberWithOptions(decimal: true),
+                                          const TextInputType.numberWithOptions(
+                                            decimal: true,
+                                          ),
                                       validator: (value) {
                                         final raw = (value ?? '').trim();
                                         if (raw.isEmpty) {
@@ -720,7 +727,9 @@ class _MessSecScreenState extends State<MessSecScreen> {
                                       value: _selectedUnit,
                                       icon: Icons.straighten_rounded,
                                       items: _unitOptions,
-                                      errorText: _showInventoryErrors && _selectedUnit == null
+                                      errorText:
+                                          _showInventoryErrors &&
+                                              _selectedUnit == null
                                           ? 'Unit is required'
                                           : null,
                                       onChanged: (value) {
@@ -741,12 +750,16 @@ class _MessSecScreenState extends State<MessSecScreen> {
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
-                                  onPressed: _isInventoryFormValid ? _addItem : null,
+                                  onPressed: _isInventoryFormValid
+                                      ? _addItem
+                                      : null,
                                   icon: const Icon(Icons.add_rounded),
                                   label: const Text('Add Item'),
                                   style: ElevatedButton.styleFrom(
                                     elevation: 2,
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -799,8 +812,12 @@ class _MessSecScreenState extends State<MessSecScreen> {
                                     )
                                   : _blueBtn(
                                       icon: Icons.send_rounded,
-                                      label: _sentToPm ? 'Sent to PM' : 'Send to PM',
-                                      onTap: _sentToPm ? null : _sendToFirestore,
+                                      label: _sentToPm
+                                          ? 'Sent to PM'
+                                          : 'Send to PM',
+                                      onTap: _sentToPm
+                                          ? null
+                                          : _sendToFirestore,
                                     ),
                             ),
                           ],
@@ -809,11 +826,15 @@ class _MessSecScreenState extends State<MessSecScreen> {
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            _sentToPm ? 'Status: Sent to PM' : 'Status: Pending Approval',
+                            _sentToPm
+                                ? 'Status: Sent to PM'
+                                : 'Status: Pending Approval',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: _sentToPm ? Colors.green.shade700 : _kSubtext,
+                              color: _sentToPm
+                                  ? Colors.green.shade700
+                                  : _kSubtext,
                             ),
                           ),
                         ),
@@ -1286,10 +1307,11 @@ class CustomTextField extends StatelessWidget {
         prefixIcon: Icon(icon),
         filled: true,
         fillColor: scheme.surfaceContainerLowest,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
         ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
@@ -1324,10 +1346,7 @@ class CustomDropdown extends StatelessWidget {
       onChanged: onChanged,
       items: items
           .map(
-            (unit) => DropdownMenuItem<String>(
-              value: unit,
-              child: Text(unit),
-            ),
+            (unit) => DropdownMenuItem<String>(value: unit, child: Text(unit)),
           )
           .toList(),
       decoration: InputDecoration(
@@ -1337,10 +1356,11 @@ class CustomDropdown extends StatelessWidget {
         prefixIcon: Icon(icon),
         filled: true,
         fillColor: scheme.surfaceContainerLowest,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
         ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

@@ -12,14 +12,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 // ── Colors ─────────────────────────────────
 const _kBlue = Color(0xFF1565C0);
-const _kBlueLight = Color(0xFF1E88E5);
-const _kBlueTint = Color(0xFFE8F0FE);
-const _kBorder = Color(0xFFBBD0F8);
 const _kBg = Color(0xFFF5F8FF);
-const _kText = Color(0xFF1A1A2E);
-const _kSubtext = Color(0xFF6B7280);
 const _kRed = Color(0xFFB71C1C);
-const _kRedBg = Color(0xFFFFEBEE);
 const _kGreen = Color(0xFF2E7D32);
 
 class HostelFundsPage extends StatefulWidget {
@@ -30,9 +24,6 @@ class HostelFundsPage extends StatefulWidget {
 }
 
 class _HostelFundsPageState extends State<HostelFundsPage> {
-  bool _uploading = false;
-  String _uploadingLabel = '';
-
   /// CLOUDINARY UPLOAD FUNCTION
   Future<String?> uploadPdfToCloudinary(
     Uint8List fileBytes,
@@ -118,11 +109,6 @@ class _HostelFundsPageState extends State<HostelFundsPage> {
 
     if (label == null || label.isEmpty) return;
 
-    setState(() {
-      _uploading = true;
-      _uploadingLabel = label;
-    });
-
     try {
       final url = await uploadPdfToCloudinary(fileBytes, fileName);
 
@@ -149,30 +135,62 @@ class _HostelFundsPageState extends State<HostelFundsPage> {
         SnackBar(content: Text('Upload failed: $e'), backgroundColor: _kRed),
       );
     }
-
-    setState(() {
-      _uploading = false;
-      _uploadingLabel = '';
-    });
   }
 
-  /// OPEN PDF (Google viewer avoids PDF loading errors)
+  /// OPEN PDF — uses Google Docs Viewer so it works on ALL devices
+  /// (phones without a PDF app, laptops, iPhones, Android — everything)
   Future<void> _openPdf(String url) async {
-    final viewer = "https://docs.google.com/gview?embedded=true&url=$url";
+    final googleViewerUrl = Uri.parse(
+      'https://docs.google.com/viewer?url=${Uri.encodeComponent(url)}',
+    );
 
-    final uri = Uri.parse(viewer);
-
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (await canLaunchUrl(googleViewerUrl)) {
+      await launchUrl(
+        googleViewerUrl,
+        mode: LaunchMode.externalApplication, // opens in phone browser
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not open PDF. Please try again.'),
+          backgroundColor: _kRed,
+        ),
+      );
     }
   }
 
   /// DELETE REPORT
   Future<void> _delete(String docId) async {
+    // Show confirmation dialog before deleting
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Delete Report'),
+        content: const Text('Are you sure you want to delete this report?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: _kRed),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
     await FirebaseFirestore.instance
         .collection('hostel_funds')
         .doc(docId)
         .delete();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Report deleted'), backgroundColor: _kRed),
+    );
   }
 
   @override
@@ -183,9 +201,11 @@ class _HostelFundsPageState extends State<HostelFundsPage> {
       appBar: AppBar(
         title: const Text("Hostel Funds"),
         backgroundColor: _kBlue,
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.upload_file),
+            tooltip: 'Upload PDF Report',
             onPressed: _uploadPdf,
           ),
         ],
@@ -198,6 +218,15 @@ class _HostelFundsPageState extends State<HostelFundsPage> {
             .snapshots(),
 
         builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Something went wrong.\n${snapshot.error}',
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
+
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -205,51 +234,105 @@ class _HostelFundsPageState extends State<HostelFundsPage> {
           final docs = snapshot.data!.docs;
 
           if (docs.isEmpty) {
-            return const Center(child: Text("No reports uploaded yet"));
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.folder_open, size: 64, color: Colors.grey),
+                  SizedBox(height: 12),
+                  Text(
+                    "No reports uploaded yet",
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                ],
+              ),
+            );
           }
 
-          return ListView.builder(
+          return ListView.separated(
+            padding: const EdgeInsets.all(12),
             itemCount: docs.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 8),
 
             itemBuilder: (_, i) {
               final doc = docs[i];
               final data = doc.data() as Map<String, dynamic>;
 
-              final label = data['label'];
-              final fileName = data['fileName'];
-              final url = data['url'];
+              final label = data['label'] ?? 'Untitled';
+              final fileName = data['fileName'] ?? '';
+              final url = data['url'] ?? '';
+              final sizeKb = data['sizeKb'];
 
               final ts = data['uploadedAt'] as Timestamp?;
-
               final dateStr = ts != null
                   ? DateFormat('dd MMM yyyy').format(ts.toDate())
-                  : "";
+                  : '';
 
-              return ListTile(
-                leading: const Icon(Icons.picture_as_pdf, color: _kRed),
+              final subtitle = [
+                if (fileName.isNotEmpty) fileName,
+                if (dateStr.isNotEmpty) dateStr,
+                if (sizeKb != null) '$sizeKb KB',
+              ].join(' • ');
 
-                title: Text(label),
+              return Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  leading: const CircleAvatar(
+                    backgroundColor: Color(0xFFFFEBEE),
+                    child: Icon(Icons.picture_as_pdf, color: _kRed),
+                  ),
 
-                subtitle: Text("$fileName • $dateStr"),
+                  title: Text(
+                    label,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
 
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.open_in_new),
-                      onPressed: () => _openPdf(url),
-                    ),
+                  subtitle: Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
 
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => _delete(doc.id),
-                    ),
-                  ],
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // View button
+                      IconButton(
+                        icon: const Icon(Icons.open_in_new, color: _kBlue),
+                        tooltip: 'View PDF',
+                        onPressed: url.isNotEmpty ? () => _openPdf(url) : null,
+                      ),
+
+                      // Delete button
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, color: _kRed),
+                        tooltip: 'Delete Report',
+                        onPressed: () => _delete(doc.id),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
           );
         },
+      ),
+
+      // FAB as alternate upload button
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _uploadPdf,
+        backgroundColor: _kBlue,
+        icon: const Icon(Icons.upload_file, color: Colors.white),
+        label: const Text(
+          'Upload Report',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }

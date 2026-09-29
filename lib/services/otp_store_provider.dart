@@ -10,4 +10,3 @@ final otpStoreStreamProvider = StreamProvider.autoDispose<String?>((ref) {
     (_) => OtpStore.otp,
   ).distinct();
 });
-

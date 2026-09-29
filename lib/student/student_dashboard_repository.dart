@@ -6,14 +6,12 @@ class StudentDashboardRepository {
   final FirebaseFirestore _db;
 
   StudentDashboardRepository({FirebaseFirestore? firestore})
-      : _db = firestore ?? FirebaseFirestore.instance;
+    : _db = firestore ?? FirebaseFirestore.instance;
 
   Stream<StudentDashboardViewModel> watchStudentDashboard(String admissionNo) {
-    return _db
-        .collection('users')
-        .doc(admissionNo)
-        .snapshots()
-        .map((docSnapshot) {
+    return _db.collection('users').doc(admissionNo).snapshots().map((
+      docSnapshot,
+    ) {
       if (!docSnapshot.exists || docSnapshot.data() == null) {
         return StudentDashboardViewModel.admissionOnly(
           admissionNo: admissionNo,
@@ -28,4 +26,3 @@ class StudentDashboardRepository {
     });
   }
 }
-

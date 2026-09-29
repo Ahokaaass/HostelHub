@@ -9,8 +9,7 @@ class MessBillingAdminScreen extends StatefulWidget {
   const MessBillingAdminScreen({super.key});
 
   @override
-  State<MessBillingAdminScreen> createState() =>
-      _MessBillingAdminScreenState();
+  State<MessBillingAdminScreen> createState() => _MessBillingAdminScreenState();
 }
 
 class _MessBillingAdminScreenState extends State<MessBillingAdminScreen> {
@@ -26,9 +25,7 @@ class _MessBillingAdminScreenState extends State<MessBillingAdminScreen> {
 
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppBar(
-        title: const Text('Mess Billing Admin'),
-      ),
+      appBar: AppBar(title: const Text('Mess Billing Admin')),
       body: SafeArea(
         child: StreamBuilder<List<MessBillEntry>>(
           stream: _service.streamMessBills(limit: 100),
@@ -82,15 +79,15 @@ class _MessBillingAdminScreenState extends State<MessBillingAdminScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       DropdownButtonFormField<String>(
-                        value: selectedMonth.isNotEmpty &&
+                        initialValue:
+                            selectedMonth.isNotEmpty &&
                                 monthsSorted.contains(selectedMonth)
                             ? selectedMonth
                             : monthsSorted.first,
                         items: monthsSorted
-                            .map((m) => DropdownMenuItem(
-                                  value: m,
-                                  child: Text(m),
-                                ))
+                            .map(
+                              (m) => DropdownMenuItem(value: m, child: Text(m)),
+                            )
                             .toList(),
                         onChanged: (month) {
                           if (month == null) return;
@@ -114,8 +111,7 @@ class _MessBillingAdminScreenState extends State<MessBillingAdminScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(14),
                           child: Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,7 +137,10 @@ class _MessBillingAdminScreenState extends State<MessBillingAdminScreen> {
                                     ),
                                 ],
                               ),
-                              _StatusChip(status: selected.status, kBlue: kBlue),
+                              _StatusChip(
+                                status: selected.status,
+                                kBlue: kBlue,
+                              ),
                             ],
                           ),
                         ),
@@ -159,18 +158,19 @@ class _MessBillingAdminScreenState extends State<MessBillingAdminScreen> {
                         child: OutlinedButton.icon(
                           onPressed: () async {
                             try {
-                              final bytes = await _pdfService.generateMessBillPdf(
-                                PdfMessBillData(
-                                  studentName: selected.studentName.isEmpty
-                                      ? 'N/A'
-                                      : selected.studentName,
-                                  month: selected.month,
-                                  breakfastCount: selected.breakfastCount,
-                                  lunchCount: selected.lunchCount,
-                                  dinnerCount: selected.dinnerCount,
-                                  totalAmount: selected.finalBill,
-                                ),
-                              );
+                              final bytes = await _pdfService
+                                  .generateMessBillPdf(
+                                    PdfMessBillData(
+                                      studentName: selected.studentName.isEmpty
+                                          ? 'N/A'
+                                          : selected.studentName,
+                                      month: selected.month,
+                                      breakfastCount: selected.breakfastCount,
+                                      lunchCount: selected.lunchCount,
+                                      dinnerCount: selected.dinnerCount,
+                                      totalAmount: selected.finalBill,
+                                    ),
+                                  );
                               await Printing.sharePdf(
                                 bytes: bytes,
                                 filename:
@@ -211,8 +211,7 @@ class _MessBillingAdminScreenState extends State<MessBillingAdminScreen> {
                                       child: const Text('Cancel'),
                                     ),
                                     ElevatedButton(
-                                      onPressed: () =>
-                                          Navigator.pop(ctx, true),
+                                      onPressed: () => Navigator.pop(ctx, true),
                                       child: const Text('Finalize'),
                                     ),
                                   ],
@@ -225,7 +224,9 @@ class _MessBillingAdminScreenState extends State<MessBillingAdminScreen> {
                                 if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Bill finalized successfully'),
+                                    content: Text(
+                                      'Bill finalized successfully',
+                                    ),
                                   ),
                                 );
                               } catch (e) {
@@ -248,9 +249,7 @@ class _MessBillingAdminScreenState extends State<MessBillingAdminScreen> {
                           decoration: BoxDecoration(
                             color: Colors.green.shade50,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Colors.green.shade200,
-                            ),
+                            border: Border.all(color: Colors.green.shade200),
                           ),
                           child: const Center(
                             child: Text(
@@ -299,10 +298,7 @@ class _StatusChip extends StatelessWidget {
   final String status;
   final Color kBlue;
 
-  const _StatusChip({
-    required this.status,
-    required this.kBlue,
-  });
+  const _StatusChip({required this.status, required this.kBlue});
 
   @override
   Widget build(BuildContext context) {
@@ -392,9 +388,7 @@ class _BillCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Row(
@@ -405,9 +399,7 @@ class _BillCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: accent.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: accent.withOpacity(0.20),
-                ),
+                border: Border.all(color: accent.withOpacity(0.20)),
               ),
               child: Icon(icon, color: accent, size: 22),
             ),
@@ -498,7 +490,9 @@ class _HistoryList extends StatelessWidget {
                       isFinal
                           ? Icons.check_circle_rounded
                           : Icons.edit_note_rounded,
-                      color: isFinal ? Colors.green.shade700 : const Color(0xFF1565C0),
+                      color: isFinal
+                          ? Colors.green.shade700
+                          : const Color(0xFF1565C0),
                       size: 18,
                     ),
                   ),
@@ -522,7 +516,9 @@ class _HistoryList extends StatelessWidget {
                             fontWeight: FontWeight.w900,
                             fontSize: 13,
                             color: e.finalBill > 0
-                                ? (isFinal ? Colors.green.shade700 : const Color(0xFF1565C0))
+                                ? (isFinal
+                                      ? Colors.green.shade700
+                                      : const Color(0xFF1565C0))
                                 : const Color(0xFF6B7280),
                           ),
                         ),
@@ -534,7 +530,9 @@ class _HistoryList extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 12,
-                      color: isFinal ? Colors.green.shade700 : const Color(0xFF1565C0),
+                      color: isFinal
+                          ? Colors.green.shade700
+                          : const Color(0xFF1565C0),
                     ),
                   ),
                 ],
@@ -546,4 +544,3 @@ class _HistoryList extends StatelessWidget {
     );
   }
 }
-

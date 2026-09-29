@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // ── Theme constants ───────────────────────────────────────────────────────────
-const _kBlue      = Color(0xFF1565C0);
+const _kBlue = Color(0xFF1565C0);
 const _kBlueLight = Color(0xFF1E88E5);
-const _kBlueTint  = Color(0xFFE8F0FE);
-const _kBorder    = Color(0xFFBBD0F8);
-const _kBg        = Color(0xFFF5F8FF);
-const _kText      = Color(0xFF1A1A2E);
-const _kSubtext   = Color(0xFF6B7280);
+const _kBlueTint = Color(0xFFE8F0FE);
+const _kBorder = Color(0xFFBBD0F8);
+const _kBg = Color(0xFFF5F8FF);
+const _kText = Color(0xFF1A1A2E);
+const _kSubtext = Color(0xFF6B7280);
 
 // ── Emergency model (inline — no external import needed) ─────────────────────
 class _EmergencyModel {
   final String id;
   final String title;
   final String message;
-  final String status;   // 'active' | 'received' | 'handled'
+  final String status; // 'active' | 'received' | 'handled'
   final String severity; // e.g. 'High', 'Medium', 'Low'
   final List<String> readBy;
   final DateTime? createdAt;
@@ -33,12 +33,12 @@ class _EmergencyModel {
   factory _EmergencyModel.fromDoc(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return _EmergencyModel(
-      id       : doc.id,
-      title    : data['title']    as String? ?? '',
-      message  : data['message']  as String? ?? '',
-      status   : data['status']   as String? ?? 'active',
-      severity : data['severity'] as String? ?? 'Medium',
-      readBy   : List<String>.from(data['readBy'] ?? []),
+      id: doc.id,
+      title: data['title'] as String? ?? '',
+      message: data['message'] as String? ?? '',
+      status: data['status'] as String? ?? 'active',
+      severity: data['severity'] as String? ?? 'Medium',
+      readBy: List<String>.from(data['readBy'] ?? []),
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
   }
@@ -60,19 +60,19 @@ class SecurityEmergencyPage extends StatelessWidget {
             width: double.infinity,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin : Alignment.topLeft,
-                end   : Alignment.bottomRight,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: [_kBlue, _kBlueLight],
               ),
               borderRadius: BorderRadius.only(
-                bottomLeft : Radius.circular(28),
+                bottomLeft: Radius.circular(28),
                 bottomRight: Radius.circular(28),
               ),
               boxShadow: [
                 BoxShadow(
-                  color     : Color(0x351565C0),
+                  color: Color(0x351565C0),
                   blurRadius: 18,
-                  offset    : Offset(0, 6),
+                  offset: Offset(0, 6),
                 ),
               ],
             ),
@@ -85,16 +85,20 @@ class SecurityEmergencyPage extends StatelessWidget {
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Container(
-                        width : 38,
+                        width: 38,
                         height: 38,
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.18),
                           borderRadius: BorderRadius.circular(11),
                           border: Border.all(
-                              color: Colors.white.withOpacity(0.3)),
+                            color: Colors.white.withOpacity(0.3),
+                          ),
                         ),
-                        child: const Icon(Icons.arrow_back_rounded,
-                            color: Colors.white, size: 20),
+                        child: const Icon(
+                          Icons.arrow_back_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -104,17 +108,16 @@ class SecurityEmergencyPage extends StatelessWidget {
                         Text(
                           'Emergency Alerts',
                           style: TextStyle(
-                              color        : Colors.white,
-                              fontSize     : 20,
-                              fontWeight   : FontWeight.w800,
-                              letterSpacing: -0.3),
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                         SizedBox(height: 2),
                         Text(
                           'Active hostel emergency updates',
-                          style: TextStyle(
-                              color   : Colors.white70,
-                              fontSize: 12),
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
                         ),
                       ],
                     ),
@@ -134,7 +137,8 @@ class SecurityEmergencyPage extends StatelessWidget {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
-                      child: CircularProgressIndicator(color: _kBlue));
+                    child: CircularProgressIndicator(color: _kBlue),
+                  );
                 }
 
                 if (snapshot.hasError) {
@@ -154,29 +158,31 @@ class SecurityEmergencyPage extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
-                          width : 64,
+                          width: 64,
                           height: 64,
                           decoration: BoxDecoration(
-                            color       : _kBlueTint,
+                            color: _kBlueTint,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Icon(Icons.shield_rounded,
-                              color: _kBlue, size: 32),
+                          child: const Icon(
+                            Icons.shield_rounded,
+                            color: _kBlue,
+                            size: 32,
+                          ),
                         ),
                         const SizedBox(height: 16),
                         const Text(
                           'No emergency alerts',
                           style: TextStyle(
-                              color     : _kText,
-                              fontSize  : 16,
-                              fontWeight: FontWeight.w600),
+                            color: _kText,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         const Text(
                           'All clear — no active emergencies',
-                          style: TextStyle(
-                              color   : _kSubtext,
-                              fontSize: 13),
+                          style: TextStyle(color: _kSubtext, fontSize: 13),
                         ),
                       ],
                     ),
@@ -214,14 +220,15 @@ class _SecurityEmergencyCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color       : Colors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border      : Border.all(color: _kBorder, width: 1.2),
-        boxShadow   : const [
+        border: Border.all(color: _kBorder, width: 1.2),
+        boxShadow: const [
           BoxShadow(
-              color     : Color(0x0C1565C0),
-              blurRadius: 12,
-              offset    : Offset(0, 4)),
+            color: Color(0x0C1565C0),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -232,7 +239,7 @@ class _SecurityEmergencyCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: style.color,
               borderRadius: const BorderRadius.only(
-                topLeft : Radius.circular(18),
+                topLeft: Radius.circular(18),
                 topRight: Radius.circular(18),
               ),
             ),
@@ -247,10 +254,10 @@ class _SecurityEmergencyCard extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      width : 44,
+                      width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color       : style.tint,
+                        color: style.tint,
                         borderRadius: BorderRadius.circular(13),
                       ),
                       child: Icon(style.icon, color: style.color, size: 22),
@@ -260,27 +267,30 @@ class _SecurityEmergencyCard extends StatelessWidget {
                       child: Text(
                         emergency.title,
                         style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize  : 14,
-                            color     : _kText),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: _kText,
+                        ),
                       ),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
-                        color       : style.tint,
+                        color: style.tint,
                         borderRadius: BorderRadius.circular(20),
-                        border      : Border.all(
-                            color: style.color.withOpacity(0.4)),
+                        border: Border.all(color: style.color.withOpacity(0.4)),
                       ),
                       child: Text(
                         style.label,
                         style: TextStyle(
-                            fontSize     : 11,
-                            fontWeight   : FontWeight.w800,
-                            color        : style.color,
-                            letterSpacing: 0.3),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: style.color,
+                          letterSpacing: 0.3,
+                        ),
                       ),
                     ),
                   ],
@@ -290,12 +300,12 @@ class _SecurityEmergencyCard extends StatelessWidget {
 
                 // Message box
                 Container(
-                  width  : double.infinity,
+                  width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color       : _kBg,
+                    color: _kBg,
                     borderRadius: BorderRadius.circular(12),
-                    border      : Border.all(color: _kBorder),
+                    border: Border.all(color: _kBorder),
                   ),
                   child: Text(
                     emergency.message,
@@ -308,23 +318,29 @@ class _SecurityEmergencyCard extends StatelessWidget {
                 // Severity chip
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 4),
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color       : style.tint,
+                    color: style.tint,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.bar_chart_rounded,
-                          size: 12, color: style.color),
+                      Icon(
+                        Icons.bar_chart_rounded,
+                        size: 12,
+                        color: style.color,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         'Severity: ${emergency.severity}',
                         style: TextStyle(
-                            fontSize  : 11,
-                            fontWeight: FontWeight.w600,
-                            color     : style.color),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: style.color,
+                        ),
                       ),
                     ],
                   ),
@@ -341,32 +357,35 @@ class _SecurityEmergencyCard extends StatelessWidget {
     switch (status) {
       case 'handled':
         return _StatusStyle(
-            color: Colors.green.shade600,
-            tint : Colors.green.shade50,
-            icon : Icons.check_circle_rounded,
-            label: 'RESOLVED');
+          color: Colors.green.shade600,
+          tint: Colors.green.shade50,
+          icon: Icons.check_circle_rounded,
+          label: 'RESOLVED',
+        );
       case 'received':
         return _StatusStyle(
-            color: Colors.orange.shade700,
-            tint : Colors.orange.shade50,
-            icon : Icons.access_time_rounded,
-            label: 'RECEIVED');
+          color: Colors.orange.shade700,
+          tint: Colors.orange.shade50,
+          icon: Icons.access_time_rounded,
+          label: 'RECEIVED',
+        );
       default:
         return _StatusStyle(
-            color: Colors.red.shade600,
-            tint : Colors.red.shade50,
-            icon : Icons.warning_rounded,
-            label: 'ACTIVE');
+          color: Colors.red.shade600,
+          tint: Colors.red.shade50,
+          icon: Icons.warning_rounded,
+          label: 'ACTIVE',
+        );
     }
   }
 }
 
 // ── Status style helper ───────────────────────────────────────────────────────
 class _StatusStyle {
-  final Color    color;
-  final Color    tint;
+  final Color color;
+  final Color tint;
   final IconData icon;
-  final String   label;
+  final String label;
 
   const _StatusStyle({
     required this.color,

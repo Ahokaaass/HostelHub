@@ -12,12 +12,11 @@ class ComplaintsSection extends StatefulWidget {
 class _ComplaintsSectionState extends State<ComplaintsSection> {
   String _filter = 'All';
   String _search = '';
-  String _categoryFilter = 'All Categories'; // ✅ NEW
+  String _categoryFilter = 'All Categories';
   DateTime? _selectedDate;
 
   final List<String> filters = ['All', 'Pending', 'Accepted', 'Rejected'];
 
-  // ✅ NEW
   final List<String> categoryFilters = [
     'All Categories',
     'Room Complaint',
@@ -78,13 +77,10 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
         (data['studentRoom'] ?? '').toLowerCase().contains(q);
   }
 
-  // ✅ NEW
   bool _matchesCategory(Map<String, dynamic> data) {
     if (_categoryFilter == 'All Categories') return true;
     return (data['category'] ?? '') == _categoryFilter;
   }
-
-  // ✅ NEW: reusable category dropdown widget
 
   bool _matchesDate(Map<String, dynamic> data) {
     if (_selectedDate == null) return true;
@@ -158,7 +154,10 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: _categoryFilter,
-          icon: const Icon(Icons.keyboard_arrow_down, color: kComplaintBlueLight),
+          icon: const Icon(
+            Icons.keyboard_arrow_down,
+            color: kComplaintBlueLight,
+          ),
           style: const TextStyle(
             color: Color(0xFF1B1B1B),
             fontSize: 13,
@@ -188,81 +187,87 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
             ),
           ],
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: kComplaintBg,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    data['studentName'] ?? '',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                    ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: kComplaintBg,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  Text(
-                    'Room ${data['studentRoom']}  ·  ${data['category']}',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    data['message'] ?? '',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF444444),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: kComplaintBlueTint,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: kComplaintBlue.withOpacity(0.3),
-                ),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.person, color: kComplaintBlue, size: 20),
-                  SizedBox(width: 10),
-                  Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Forwarding To',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: kComplaintBlue,
+                        data['studentName'] ?? '',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
                         ),
                       ),
                       Text(
-                        'RT',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF1B5E20),
+                        'Room ${data['studentRoom']}  ·  ${data['category']}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        data['message'] ?? '',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF444444),
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: kComplaintBlueTint,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: kComplaintBlue.withOpacity(0.3)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.person, color: kComplaintBlue, size: 20),
+                      SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Forwarding To',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: kComplaintBlue,
+                            ),
+                          ),
+                          Text(
+                            'RT',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1B5E20),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
         actions: [
           TextButton(
@@ -341,164 +346,211 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
     );
   }
 
+  // ✅ UPDATED: reason is now mandatory — cannot reject without typing a reason
   void _showRejectDialog(String docId, Map<String, dynamic> data) {
     final ctrl = TextEditingController();
+    String? errorText;
+
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Icons.cancel_outlined, color: Color(0xFFDC3545)),
-            SizedBox(width: 8),
-            Text(
-              'Reject Complaint',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF5F5),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFDC3545).withOpacity(0.2),
-                ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.cancel_outlined, color: Color(0xFFDC3545)),
+              SizedBox(width: 8),
+              Text(
+                'Reject Complaint',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
               ),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    data['studentName'] ?? '',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF5F5),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFFDC3545).withOpacity(0.2),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data['studentName'] ?? '',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          'Room ${data['studentRoom']}  ·  ${data['category']}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          data['message'] ?? '',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF444444),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    'Room ${data['studentRoom']}  ·  ${data['category']}',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  const SizedBox(height: 14),
+                  // ✅ Removed "(optional)" — reason is now required
+                  const Text(
+                    'Reason for Rejection:',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    data['message'] ?? '',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF444444),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: ctrl,
+                    maxLines: 3,
+                    // ✅ Clear error as user types
+                    onChanged: (_) {
+                      if (errorText != null) {
+                        setDialogState(() => errorText = null);
+                      }
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Enter reason...',
+                      hintStyle: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      // ✅ Shows red error message below field when empty
+                      errorText: errorText,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFFDC3545),
+                          width: 2,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFFDC3545),
+                          width: 1.5,
+                        ),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFFDC3545),
+                          width: 2,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 14),
-            const Text(
-              'Reason for Rejection (optional):',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: ctrl,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: 'Enter reason...',
-                hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
-                border: OutlineInputBorder(
+            ElevatedButton.icon(
+              onPressed: () async {
+                // ✅ Block submission if reason is empty
+                if (ctrl.text.trim().isEmpty) {
+                  setDialogState(
+                    () => errorText = 'Please enter a reason for rejection',
+                  );
+                  return;
+                }
+                Navigator.pop(ctx);
+                try {
+                  await FirebaseFirestore.instance
+                      .collection('complaints')
+                      .doc(docId)
+                      .update({
+                        'status': 'rejected',
+                        'rejectMessage': ctrl.text.trim(),
+                        'history': FieldValue.arrayUnion([
+                          {
+                            'stage': 'Matron',
+                            'action': 'rejected',
+                            'note': ctrl.text.trim(),
+                            'timestamp': DateTime.now().toIso8601String(),
+                          },
+                        ]),
+                      });
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Row(
+                        children: [
+                          Icon(Icons.block, color: Colors.white, size: 18),
+                          SizedBox(width: 8),
+                          Text(
+                            'Complaint rejected',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                      backgroundColor: const Color(0xFFDC3545),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                } catch (e) {
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                }
+              },
+              icon: const Icon(Icons.block, size: 16),
+              label: const Text(
+                'Confirm Reject',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFDC3545),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFFDC3545),
-                    width: 2,
-                  ),
                 ),
               ),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w700),
-            ),
-          ),
-          ElevatedButton.icon(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              try {
-                await FirebaseFirestore.instance
-                    .collection('complaints')
-                    .doc(docId)
-                    .update({
-                      'status': 'rejected',
-                      'rejectMessage': ctrl.text.trim().isNotEmpty
-                          ? ctrl.text.trim()
-                          : 'Rejected by Matron',
-                      'history': FieldValue.arrayUnion([
-                        {
-                          'stage': 'Matron',
-                          'action': 'rejected',
-                          'note': ctrl.text.trim().isNotEmpty
-                              ? ctrl.text.trim()
-                              : 'Rejected by Matron',
-                          'timestamp': DateTime.now().toIso8601String(),
-                        },
-                      ]),
-                    });
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Row(
-                      children: [
-                        Icon(Icons.block, color: Colors.white, size: 18),
-                        SizedBox(width: 8),
-                        Text(
-                          'Complaint rejected',
-                          style: TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                      ],
-                    ),
-                    backgroundColor: const Color(0xFFDC3545),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    duration: const Duration(seconds: 3),
-                  ),
-                );
-              } catch (e) {
-                if (!mounted) return;
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('Error: $e')));
-              }
-            },
-            icon: const Icon(Icons.block, size: 16),
-            label: const Text(
-              'Confirm Reject',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDC3545),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -554,6 +606,7 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kComplaintBg,
+      resizeToAvoidBottomInset: false,
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('complaints').snapshots(),
         builder: (context, snapshot) {
@@ -580,6 +633,7 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
 
           return Column(
             children: [
+              // Header
               Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -668,13 +722,16 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
                   ],
                 ),
               ),
+
+              // Body
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     children: [
                       const SizedBox(height: 16),
-                      // Search
+
+                      // Search bar
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -718,7 +775,7 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
                       ),
                       const SizedBox(height: 10),
 
-                      // ✅ Date filter
+                      // Date filter
                       Row(
                         children: [
                           Expanded(
@@ -749,7 +806,7 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
                                 ),
                                 child: Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.calendar_month,
                                       size: 18,
                                       color: kComplaintBlue,
@@ -798,11 +855,11 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
                       ),
                       const SizedBox(height: 10),
 
-                      // ✅ NEW: Category dropdown
+                      // Category dropdown
                       _categoryDropdown(),
                       const SizedBox(height: 10),
 
-                      // Status filter tabs
+                      // Status filter chips
                       SizedBox(
                         height: 36,
                         child: ListView.separated(
@@ -821,9 +878,7 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
                                   vertical: 7,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: active
-                                      ? kComplaintBlue
-                                      : Colors.white,
+                                  color: active ? kComplaintBlue : Colors.white,
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
@@ -852,9 +907,10 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
                           },
                         ),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 10),
+
+                      // Active date label
                       if (_selectedDate != null) ...[
-                        const SizedBox(height: 8),
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(
@@ -886,8 +942,10 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
                             ],
                           ),
                         ),
+                        const SizedBox(height: 8),
                       ],
 
+                      // Complaints list
                       Expanded(
                         child:
                             snapshot.connectionState == ConnectionState.waiting
@@ -912,18 +970,20 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
                                           b.data() as Map<String, dynamic>;
                                       DateTime aTime = DateTime(2000);
                                       DateTime bTime = DateTime(2000);
-                                      final aRaw = aData["createdAt"];
-                                      final bRaw = bData["createdAt"];
-                                      if (aRaw is String)
+                                      final aRaw = aData['createdAt'];
+                                      final bRaw = bData['createdAt'];
+                                      if (aRaw is String) {
                                         aTime =
                                             DateTime.tryParse(aRaw) ?? aTime;
-                                      else if (aRaw != null)
+                                      } else if (aRaw != null) {
                                         aTime = (aRaw as dynamic).toDate();
-                                      if (bRaw is String)
+                                      }
+                                      if (bRaw is String) {
                                         bTime =
                                             DateTime.tryParse(bRaw) ?? bTime;
-                                      else if (bRaw != null)
+                                      } else if (bRaw != null) {
                                         bTime = (bRaw as dynamic).toDate();
+                                      }
                                       return bTime.compareTo(aTime);
                                     });
 
@@ -1162,7 +1222,9 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
                                                     ],
                                                   ),
                                                 ),
-                                                Row(
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
                                                     Container(
                                                       padding:
@@ -1193,18 +1255,14 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
                                                         ),
                                                       ),
                                                     ),
-                                                    const SizedBox(width: 8),
-                                                    Expanded(
-                                                      child: Text(
-                                                        data['message'] ?? '',
-                                                        style: const TextStyle(
-                                                          fontSize: 13,
-                                                          color: Color(
-                                                            0xFF555555,
-                                                          ),
+                                                    const SizedBox(height: 6),
+                                                    Text(
+                                                      data['message'] ?? '',
+                                                      style: const TextStyle(
+                                                        fontSize: 13,
+                                                        color: Color(
+                                                          0xFF555555,
                                                         ),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
                                                       ),
                                                     ),
                                                   ],
@@ -1319,26 +1377,31 @@ class _ComplaintsSectionState extends State<ComplaintsSection> {
   Widget _statBox(String label, int count, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Column(
-          children: [
-            Text(
-              '$count',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '$count',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
-            Text(
-              label,
-              style: const TextStyle(color: Colors.white, fontSize: 11),
-            ),
-          ],
+              Text(
+                label,
+                style: const TextStyle(color: Colors.white, fontSize: 10),
+              ),
+            ],
+          ),
         ),
       ),
     );

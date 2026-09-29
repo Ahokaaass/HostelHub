@@ -85,7 +85,7 @@ class MessAdminSampleData {
   static int totalBill({int? vegUnitPrice, int? nonVegUnitPrice}) {
     final vegUnit = vegUnitPrice ?? vegPrice;
     final nonVegUnit = nonVegUnitPrice ?? nonVegPrice;
-    return (vegStudents.length * vegUnit) + (nonVegStudents.length * nonVegUnit);
+    return (vegStudents.length * vegUnit) +
+        (nonVegStudents.length * nonVegUnit);
   }
 }
-

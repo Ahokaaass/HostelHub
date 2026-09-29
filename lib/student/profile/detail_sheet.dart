@@ -15,9 +15,10 @@ void showDetailSheet(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(title,
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 16),
           ...data.map(
             (e) => Padding(
@@ -26,9 +27,10 @@ void showDetailSheet(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(e['label']!, style: const TextStyle(color: Colors.grey)),
-                  Text(e['value']!,
-                      style:
-                          const TextStyle(fontWeight: FontWeight.w500)),
+                  Text(
+                    e['value']!,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
                 ],
               ),
             ),

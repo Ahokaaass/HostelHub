@@ -3,66 +3,37 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+// ── Colors ─────────────────────────────────
+const _kBlue = Color(0xFF1565C0);
+const _kBg = Color(0xFFF5F8FF);
+const _kRed = Color(0xFFB71C1C);
+
 class HostelSecFundsPage extends StatelessWidget {
   const HostelSecFundsPage({super.key});
 
-  /// Open PDF in viewer
-  Future<void> _viewPdf(String url) async {
-    final viewer = "https://docs.google.com/gview?embedded=true&url=$url";
-
-    final uri = Uri.parse(viewer);
-
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
-
-  /// Direct download
-  Future<void> _downloadPdf(String url) async {
-    final uri = Uri.parse(url);
-
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
-
-  /// Show options (view / download)
-  void _showOptions(BuildContext context, String url) {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.visibility),
-                title: const Text("Open PDF"),
-                onTap: () {
-                  Navigator.pop(context);
-                  _viewPdf(url);
-                },
-              ),
-
-              ListTile(
-                leading: const Icon(Icons.download),
-                title: const Text("Download PDF"),
-                onTap: () {
-                  Navigator.pop(context);
-                  _downloadPdf(url);
-                },
-              ),
-            ],
-          ),
-        );
-      },
+  /// OPEN PDF — uses Google Docs Viewer so it works on ALL devices
+  Future<void> _openPdf(String url) async {
+    final googleViewerUrl = Uri.parse(
+      'https://docs.google.com/viewer?url=${Uri.encodeComponent(url)}',
     );
+
+    if (await canLaunchUrl(googleViewerUrl)) {
+      await launchUrl(googleViewerUrl, mode: LaunchMode.externalApplication);
+    } else {
+      debugPrint('Could not open PDF');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Hostel Fund Reports")),
+      backgroundColor: _kBg,
+
+      appBar: AppBar(
+        title: const Text("Hostel Fund Reports"),
+        backgroundColor: _kBlue,
+        foregroundColor: Colors.white,
+      ),
 
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -71,6 +42,15 @@ class HostelSecFundsPage extends StatelessWidget {
             .snapshots(),
 
         builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Something went wrong.\n${snapshot.error}',
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
+
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -78,45 +58,78 @@ class HostelSecFundsPage extends StatelessWidget {
           final docs = snapshot.data!.docs;
 
           if (docs.isEmpty) {
-            return const Center(child: Text("No reports available"));
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.folder_open, size: 64, color: Colors.grey),
+                  SizedBox(height: 12),
+                  Text(
+                    "No reports available",
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                ],
+              ),
+            );
           }
 
-          return ListView.builder(
+          return ListView.separated(
+            padding: const EdgeInsets.all(12),
             itemCount: docs.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 8),
 
-            itemBuilder: (context, index) {
-              final data = docs[index].data() as Map<String, dynamic>;
+            itemBuilder: (_, i) {
+              final doc = docs[i];
+              final data = doc.data() as Map<String, dynamic>;
 
-              final label = data['label'] ?? "Report";
-              final fileName = data['fileName'] ?? "";
-              final url = data['url'] ?? "";
+              final label = data['label'] ?? 'Untitled';
+              final fileName = data['fileName'] ?? '';
+              final url = data['url'] ?? '';
+              final sizeKb = data['sizeKb'];
 
               final ts = data['uploadedAt'] as Timestamp?;
-
-              final date = ts != null
+              final dateStr = ts != null
                   ? DateFormat('dd MMM yyyy').format(ts.toDate())
-                  : "";
+                  : '';
+
+              final subtitle = [
+                if (fileName.isNotEmpty) fileName,
+                if (dateStr.isNotEmpty) dateStr,
+                if (sizeKb != null) '$sizeKb KB',
+              ].join(' • ');
 
               return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: ListTile(
-                  leading: const Icon(
-                    Icons.picture_as_pdf,
-                    color: Colors.red,
-                    size: 32,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  leading: const CircleAvatar(
+                    backgroundColor: Color(0xFFFFEBEE),
+                    child: Icon(Icons.picture_as_pdf, color: _kRed),
                   ),
 
-                  title: Text(label),
+                  title: Text(
+                    label,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
 
-                  subtitle: Text("$fileName • $date"),
+                  subtitle: Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
 
                   trailing: IconButton(
-                    icon: const Icon(Icons.more_vert),
-                    onPressed: () => _showOptions(context, url),
+                    icon: const Icon(Icons.open_in_new, color: _kBlue),
+                    tooltip: 'View PDF',
+                    onPressed: url.isNotEmpty ? () => _openPdf(url) : null,
                   ),
 
-                  onTap: () => _viewPdf(url),
+                  onTap: url.isNotEmpty ? () => _openPdf(url) : null,
                 ),
               );
             },

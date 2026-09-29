@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 const _kBlue = Color(0xFF1565C0);
 const _kBlueLight = Color(0xFF1E88E5);
 const _kBlueTint = Color(0xFFE8F0FE);
-const _kBorder = Color(0xFFBBD0F8);
 const _kBg = Color(0xFFF5F8FF);
 const _kText = Color(0xFF1A1A2E);
 const _kSubtext = Color(0xFF6B7280);
@@ -844,7 +843,6 @@ class _StudentCard extends StatelessWidget {
     final name = data['name'] as String;
     final room = data['room']?.toString() ?? '-';
     final status = data['status'] as String;
-    final messCut = data['messCut'] as bool;
 
     final isPresent = status == 'present';
 

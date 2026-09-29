@@ -4,13 +4,13 @@ import 'package:intl/intl.dart';
 import '../student/student_data.dart';
 
 // ── Blue palette ──────────────────────────────────────────────────────────────
-const _kBlue      = Color(0xFF1565C0);
+const _kBlue = Color(0xFF1565C0);
 const _kBlueLight = Color(0xFF1E88E5);
-const _kBg        = Color(0xFFF5F8FF);
-const _kBorder    = Color(0xFFBBD0F8);
-const _kBlueTint  = Color(0xFFE8F0FE);
-const _kDark      = Color(0xFF1A1A2E);
-const _kGrey      = Color(0xFF6B7280);
+const _kBg = Color(0xFFF5F8FF);
+const _kBorder = Color(0xFFBBD0F8);
+const _kBlueTint = Color(0xFFE8F0FE);
+const _kDark = Color(0xFF1A1A2E);
+const _kGrey = Color(0xFF6B7280);
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 String _toMonthDocId(DateTime dt) =>
@@ -56,14 +56,14 @@ class _ParentAttendancePageState extends State<ParentAttendancePage> {
   }
 
   Future<_AttendanceData> _loadAll(String admNo) async {
-    final db        = FirebaseFirestore.instance;
-    final monthly   = <String, Map<String, int>>{};
+    final db = FirebaseFirestore.instance;
+    final monthly = <String, Map<String, int>>{};
     final dayStatus = <DateTime, String>{};
 
     final monthsSnap = await db.collection('attendance').get();
 
     for (final mDoc in monthsSnap.docs) {
-      final monthId   = mDoc.id;
+      final monthId = mDoc.id;
       final recordRef = db
           .collection('attendance')
           .doc(monthId)
@@ -73,25 +73,26 @@ class _ParentAttendancePageState extends State<ParentAttendancePage> {
       final recSnap = await recordRef.get();
       if (!recSnap.exists) continue;
 
-      final rd      = recSnap.data() as Map<String, dynamic>;
+      final rd = recSnap.data() as Map<String, dynamic>;
       final present = (rd['present'] ?? 0) as int;
-      final total   = (rd['total']   ?? 0) as int;
+      final total = (rd['total'] ?? 0) as int;
 
       monthly[monthId] = {
         'present': present,
-        'total'  : total,
-        'absent' : total - present,
+        'total': total,
+        'absent': total - present,
       };
 
       final daysSnap = await recordRef.collection('days').get();
       for (final dayDoc in daysSnap.docs) {
-        final dd        = dayDoc.data();
+        final dd = dayDoc.data();
         final statusVal = (dd['status'] ?? '').toString().toLowerCase().trim();
-        final status    = statusVal == 'present' ? 'present' : 'absent';
+        final status = statusVal == 'present' ? 'present' : 'absent';
         try {
-          final p  = dayDoc.id.split('-');
-          final dt = _norm(DateTime(
-              int.parse(p[0]), int.parse(p[1]), int.parse(p[2])));
+          final p = dayDoc.id.split('-');
+          final dt = _norm(
+            DateTime(int.parse(p[0]), int.parse(p[1]), int.parse(p[2])),
+          );
           dayStatus[dt] = status;
         } catch (_) {}
       }
@@ -113,16 +114,19 @@ class _ParentAttendancePageState extends State<ParentAttendancePage> {
               builder: (ctx, snap) {
                 if (snap.connectionState == ConnectionState.waiting) {
                   return const Center(
-                      child: CircularProgressIndicator(color: _kBlue));
+                    child: CircularProgressIndicator(color: _kBlue),
+                  );
                 }
                 if (snap.hasError || snap.data == null) {
                   return _emptyState(
-                      'Unable to load attendance.\nPlease try again.');
+                    'Unable to load attendance.\nPlease try again.',
+                  );
                 }
 
-                final data    = snap.data!;
-                final nowKey  = _toMonthDocId(DateTime.now());
-                final current = data.monthly[nowKey] ??
+                final data = snap.data!;
+                final nowKey = _toMonthDocId(DateTime.now());
+                final current =
+                    data.monthly[nowKey] ??
                     {'present': 0, 'total': 0, 'absent': 0};
 
                 final sorted = data.monthly.entries.toList()
@@ -135,7 +139,8 @@ class _ParentAttendancePageState extends State<ParentAttendancePage> {
 
                 if (data.monthly.isEmpty) {
                   return _emptyState(
-                      'No attendance found for ${StudentData.name}');
+                    'No attendance found for ${StudentData.name}',
+                  );
                 }
 
                 return SingleChildScrollView(
@@ -149,8 +154,8 @@ class _ParentAttendancePageState extends State<ParentAttendancePage> {
 
                       _CurrentMonthCard(
                         present: current['present']!,
-                        absent : current['absent']!,
-                        total  : current['total']!,
+                        absent: current['absent']!,
+                        total: current['total']!,
                       ),
                       const SizedBox(height: 22),
                       _buildLegend(),
@@ -160,21 +165,31 @@ class _ParentAttendancePageState extends State<ParentAttendancePage> {
                       _CustomCalendar(
                         viewMonth: _viewMonth,
                         dayStatus: data.dayStatus,
-                        monthly  : data.monthly,
-                        onPrev: () => setState(() => _viewMonth =
-                            DateTime(_viewMonth.year, _viewMonth.month - 1)),
-                        onNext: () => setState(() => _viewMonth =
-                            DateTime(_viewMonth.year, _viewMonth.month + 1)),
+                        monthly: data.monthly,
+                        onPrev: () => setState(
+                          () => _viewMonth = DateTime(
+                            _viewMonth.year,
+                            _viewMonth.month - 1,
+                          ),
+                        ),
+                        onNext: () => setState(
+                          () => _viewMonth = DateTime(
+                            _viewMonth.year,
+                            _viewMonth.month + 1,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 26),
                       _sectionLabel('Monthly Records'),
                       const SizedBox(height: 10),
-                      ...sorted.map((e) => _MonthCard(
-                            monthId: e.key,
-                            present: e.value['present']!,
-                            absent : e.value['absent']!,
-                            total  : e.value['total']!,
-                          )),
+                      ...sorted.map(
+                        (e) => _MonthCard(
+                          monthId: e.key,
+                          present: e.value['present']!,
+                          absent: e.value['absent']!,
+                          total: e.value['total']!,
+                        ),
+                      ),
                     ],
                   ),
                 );
@@ -187,109 +202,136 @@ class _ParentAttendancePageState extends State<ParentAttendancePage> {
   }
 
   Widget _buildHeader() => Container(
-        width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [_kBlue, _kBlueLight],
-          ),
-          borderRadius: BorderRadius.only(
-            bottomLeft : Radius.circular(28),
-            bottomRight: Radius.circular(28),
-          ),
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: Row(children: [
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                width: 36, height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.18),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.arrow_back_rounded,
-                    color: Colors.white, size: 20),
+    width: double.infinity,
+    padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
+    decoration: const BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [_kBlue, _kBlueLight],
+      ),
+      borderRadius: BorderRadius.only(
+        bottomLeft: Radius.circular(28),
+        bottomRight: Radius.circular(28),
+      ),
+    ),
+    child: SafeArea(
+      bottom: false,
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.18),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.arrow_back_rounded,
+                color: Colors.white,
+                size: 20,
               ),
             ),
-            const SizedBox(width: 14),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Student Attendance',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800)),
+          ),
+          const SizedBox(width: 14),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Student Attendance',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
               const SizedBox(height: 2),
               Text(
                 DateFormat('MMMM yyyy').format(DateTime.now()),
                 style: TextStyle(
-                    color: Colors.white.withOpacity(0.8), fontSize: 13),
+                  color: Colors.white.withOpacity(0.8),
+                  fontSize: 13,
+                ),
               ),
-            ]),
-          ]),
-        ),
-      );
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
 
   Widget _buildLegend() => Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: _kBorder),
-          boxShadow: const [
-            BoxShadow(
-                color: Color(0x0A1565C0),
-                blurRadius: 6,
-                offset: Offset(0, 2))
-          ],
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: _kBorder),
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x0A1565C0),
+          blurRadius: 6,
+          offset: Offset(0, 2),
         ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          _dot(Colors.green.shade500, 'Present'),
-          const SizedBox(width: 20),
-          _dot(Colors.red.shade400, 'Absent'),
-          const SizedBox(width: 20),
-          _dot(Colors.grey.shade300, 'No record'),
-        ]),
-      );
+      ],
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _dot(Colors.green.shade500, 'Present'),
+        const SizedBox(width: 20),
+        _dot(Colors.red.shade400, 'Absent'),
+        const SizedBox(width: 20),
+        _dot(Colors.grey.shade300, 'No record'),
+      ],
+    ),
+  );
 
   Widget _dot(Color c, String label) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-              width: 10, height: 10,
-              decoration:
-                  BoxDecoration(color: c, shape: BoxShape.circle)),
-          const SizedBox(width: 6),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade700)),
-        ],
-      );
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(color: c, shape: BoxShape.circle),
+      ),
+      const SizedBox(width: 6),
+      Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: Colors.grey.shade700,
+        ),
+      ),
+    ],
+  );
 
-  static Widget _sectionLabel(String t) => Text(t,
-      style: const TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w700,
-          color: _kDark,
-          letterSpacing: -0.2));
+  static Widget _sectionLabel(String t) => Text(
+    t,
+    style: const TextStyle(
+      fontSize: 15,
+      fontWeight: FontWeight.w700,
+      color: _kDark,
+      letterSpacing: -0.2,
+    ),
+  );
 
   static Widget _emptyState(String msg) => Center(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.event_busy_rounded,
-              size: 56, color: Colors.grey.shade300),
-          const SizedBox(height: 14),
-          Text(msg,
-              textAlign: TextAlign.center,
-              style:
-                  TextStyle(color: Colors.grey.shade500, fontSize: 14)),
-        ]),
-      );
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.event_busy_rounded, size: 56, color: Colors.grey.shade300),
+        const SizedBox(height: 14),
+        Text(
+          msg,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+        ),
+      ],
+    ),
+  );
 }
 
 // ── Student identity chip shown at top of attendance ──────────────────────────
@@ -304,44 +346,54 @@ class _StudentChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: _kBorder, width: 1),
       ),
-      child: Row(children: [
-        Container(
-          width: 40, height: 40,
-          decoration: const BoxDecoration(
-              color: _kBlue, shape: BoxShape.circle),
-          child: Center(
-            child: Text(
-              _initials(name),
-              style: const TextStyle(
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: _kBlue,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                _initials(name),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
-                  fontWeight: FontWeight.w800),
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
                   style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: _kDark)),
-              const SizedBox(height: 1),
-              Text(
-                '${StudentData.department ?? ''} · ${StudentData.semester ?? ''} · Room ${StudentData.room ?? ''}',
-                style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: _kDark,
+                  ),
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  '${StudentData.department} · ${StudentData.semester} · Room ${StudentData.room}',
+                  style: const TextStyle(
                     fontSize: 12,
                     color: _kGrey,
-                    fontWeight: FontWeight.w500),
-              ),
-            ],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        const Icon(Icons.child_care_rounded, color: _kBlue, size: 18),
-      ]),
+          const Icon(Icons.child_care_rounded, color: _kBlue, size: 18),
+        ],
+      ),
     );
   }
 
@@ -370,22 +422,27 @@ class _CustomCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final today        = _norm(DateTime.now());
+    final today = _norm(DateTime.now());
     final firstOfMonth = DateTime(viewMonth.year, viewMonth.month, 1);
-    final startOffset  = (firstOfMonth.weekday - 1) % 7;
-    final daysInMonth  =
-        DateUtils.getDaysInMonth(viewMonth.year, viewMonth.month);
+    final startOffset = (firstOfMonth.weekday - 1) % 7;
+    final daysInMonth = DateUtils.getDaysInMonth(
+      viewMonth.year,
+      viewMonth.month,
+    );
 
     final cells = <DateTime?>[
       ...List.filled(startOffset, null),
       ...List.generate(
-          daysInMonth,
-          (i) => DateTime(viewMonth.year, viewMonth.month, i + 1)),
+        daysInMonth,
+        (i) => DateTime(viewMonth.year, viewMonth.month, i + 1),
+      ),
     ];
-    while (cells.length % 7 != 0) cells.add(null);
+    while (cells.length % 7 != 0) {
+      cells.add(null);
+    }
 
     final monthKey = _toMonthDocId(viewMonth);
-    final hasData  = monthly.containsKey(monthKey);
+    final hasData = monthly.containsKey(monthKey);
 
     return Container(
       decoration: BoxDecoration(
@@ -394,9 +451,10 @@ class _CustomCalendar extends StatelessWidget {
         border: Border.all(color: _kBorder, width: 1.2),
         boxShadow: const [
           BoxShadow(
-              color: Color(0x121565C0),
-              blurRadius: 14,
-              offset: Offset(0, 5))
+            color: Color(0x121565C0),
+            blurRadius: 14,
+            offset: Offset(0, 5),
+          ),
         ],
       ),
       child: ClipRRect(
@@ -406,30 +464,38 @@ class _CustomCalendar extends StatelessWidget {
             // Header
             Container(
               color: _kBlueTint,
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 4, vertical: 6),
-              child: Row(children: [
-                IconButton(
-                  onPressed: onPrev,
-                  icon: const Icon(Icons.chevron_left_rounded,
-                      color: _kBlue, size: 28),
-                ),
-                Expanded(
-                  child: Text(
-                    DateFormat('MMMM yyyy').format(viewMonth),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: onPrev,
+                    icon: const Icon(
+                      Icons.chevron_left_rounded,
+                      color: _kBlue,
+                      size: 28,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      DateFormat('MMMM yyyy').format(viewMonth),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 15,
-                        color: _kDark),
+                        color: _kDark,
+                      ),
+                    ),
                   ),
-                ),
-                IconButton(
-                  onPressed: onNext,
-                  icon: const Icon(Icons.chevron_right_rounded,
-                      color: _kBlue, size: 28),
-                ),
-              ]),
+                  IconButton(
+                    onPressed: onNext,
+                    icon: const Icon(
+                      Icons.chevron_right_rounded,
+                      color: _kBlue,
+                      size: 28,
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             // Day labels
@@ -437,17 +503,22 @@ class _CustomCalendar extends StatelessWidget {
               color: const Color(0xFFF0F4FF),
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
-                children: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
-                    .map((d) => Expanded(
-                          child: Text(d,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: (d == 'Sat' || d == 'Sun')
-                                      ? const Color(0xFFFF8C00)
-                                      : _kGrey)),
-                        ))
+                children: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                    .map(
+                      (d) => Expanded(
+                        child: Text(
+                          d,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: (d == 'Sat' || d == 'Sun')
+                                ? const Color(0xFFFF8C00)
+                                : _kGrey,
+                          ),
+                        ),
+                      ),
+                    )
                     .toList(),
               ),
             ),
@@ -460,8 +531,7 @@ class _CustomCalendar extends StatelessWidget {
                 child: Text(
                   'No attendance data for this month',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 13, color: Colors.grey.shade400),
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
                 ),
               ),
 
@@ -471,25 +541,23 @@ class _CustomCalendar extends StatelessWidget {
                 child: Column(
                   children: List.generate(cells.length ~/ 7, (row) {
                     return Padding(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 4),
+                      padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
                         children: List.generate(7, (col) {
                           final dt = cells[row * 7 + col];
                           if (dt == null) {
-                            return const Expanded(
-                                child: SizedBox(height: 38));
+                            return const Expanded(child: SizedBox(height: 38));
                           }
-                          final key       = _norm(dt);
-                          final status    = dayStatus[key];
-                          final isToday   = key == today;
+                          final key = _norm(dt);
+                          final status = dayStatus[key];
+                          final isToday = key == today;
                           final isWeekend = col >= 5;
 
                           return Expanded(
                             child: _DayCell(
-                              day      : dt.day,
-                              status   : status,
-                              isToday  : isToday,
+                              day: dt.day,
+                              status: status,
+                              isToday: isToday,
                               isWeekend: isWeekend,
                             ),
                           );
@@ -528,31 +596,41 @@ class _DayCell extends StatelessWidget {
     BoxBorder? border;
 
     if (status == 'present') {
-      bg = Colors.green.shade500; textColor = Colors.white;
-      fw = FontWeight.w700; border = null;
+      bg = Colors.green.shade500;
+      textColor = Colors.white;
+      fw = FontWeight.w700;
+      border = null;
     } else if (status == 'absent') {
-      bg = Colors.red.shade400; textColor = Colors.white;
-      fw = FontWeight.w700; border = null;
+      bg = Colors.red.shade400;
+      textColor = Colors.white;
+      fw = FontWeight.w700;
+      border = null;
     } else if (isToday) {
-      bg = _kBlueTint; textColor = _kBlue;
-      fw = FontWeight.w800; border = Border.all(color: _kBlue, width: 2);
+      bg = _kBlueTint;
+      textColor = _kBlue;
+      fw = FontWeight.w800;
+      border = Border.all(color: _kBlue, width: 2);
     } else {
       bg = Colors.transparent;
-      textColor = isWeekend
-          ? const Color(0xFFFF8C00)
-          : const Color(0xFF444444);
-      fw = FontWeight.w500; border = null;
+      textColor = isWeekend ? const Color(0xFFFF8C00) : const Color(0xFF444444);
+      fw = FontWeight.w500;
+      border = null;
     }
 
     return Center(
       child: Container(
-        width: 34, height: 34,
+        width: 34,
+        height: 34,
         decoration: BoxDecoration(
-            color: bg, shape: BoxShape.circle, border: border),
+          color: bg,
+          shape: BoxShape.circle,
+          border: border,
+        ),
         child: Center(
-          child: Text('$day',
-              style: TextStyle(
-                  fontSize: 13, fontWeight: fw, color: textColor)),
+          child: Text(
+            '$day',
+            style: TextStyle(fontSize: 13, fontWeight: fw, color: textColor),
+          ),
         ),
       ),
     );
@@ -562,8 +640,11 @@ class _DayCell extends StatelessWidget {
 // ── Current Month Summary Card ────────────────────────────────────────────────
 class _CurrentMonthCard extends StatelessWidget {
   final int present, absent, total;
-  const _CurrentMonthCard(
-      {required this.present, required this.absent, required this.total});
+  const _CurrentMonthCard({
+    required this.present,
+    required this.absent,
+    required this.total,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -576,48 +657,73 @@ class _CurrentMonthCard extends StatelessWidget {
         border: Border.all(color: _kBorder, width: 1.2),
         boxShadow: const [
           BoxShadow(
-              color: Color(0x141565C0),
-              blurRadius: 12,
-              offset: Offset(0, 4))
+            color: Color(0x141565C0),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [
-            Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 5),
-              decoration: BoxDecoration(
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
                   color: _kBlueTint,
-                  borderRadius: BorderRadius.circular(20)),
-              child: Text(
-                DateFormat('MMMM yyyy').format(DateTime.now()),
-                style: const TextStyle(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  DateFormat('MMMM yyyy').format(DateTime.now()),
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: _kBlue),
+                    color: _kBlue,
+                  ),
+                ),
               ),
-            ),
-            const Spacer(),
-            const Icon(Icons.calendar_month_rounded,
-                color: _kBlue, size: 20),
-          ]),
+              const Spacer(),
+              const Icon(Icons.calendar_month_rounded, color: _kBlue, size: 20),
+            ],
+          ),
           const SizedBox(height: 16),
-          Row(children: [
-            Expanded(
-                child: _tile(Icons.check_circle_rounded, 'Present',
-                    present, Colors.green.shade600,
-                    Colors.green.shade50)),
-            const SizedBox(width: 10),
-            Expanded(
-                child: _tile(Icons.cancel_rounded, 'Absent',
-                    absent, Colors.red.shade500, Colors.red.shade50)),
-            const SizedBox(width: 10),
-            Expanded(
-                child: _tile(Icons.event_rounded, 'Total',
-                    total, _kBlue, _kBlueTint)),
-          ]),
+          Row(
+            children: [
+              Expanded(
+                child: _tile(
+                  Icons.check_circle_rounded,
+                  'Present',
+                  present,
+                  Colors.green.shade600,
+                  Colors.green.shade50,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _tile(
+                  Icons.cancel_rounded,
+                  'Absent',
+                  absent,
+                  Colors.red.shade500,
+                  Colors.red.shade50,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _tile(
+                  Icons.event_rounded,
+                  'Total',
+                  total,
+                  _kBlue,
+                  _kBlueTint,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -627,17 +733,25 @@ class _CurrentMonthCard extends StatelessWidget {
       Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
         decoration: BoxDecoration(
-            color: bg, borderRadius: BorderRadius.circular(14)),
-        child: Column(children: [
-          Icon(icon, color: c, size: 24),
-          const SizedBox(height: 6),
-          Text('$val',
+          color: bg,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: c, size: 24),
+            const SizedBox(height: 6),
+            Text(
+              '$val',
               style: TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.w800, color: c)),
-          const SizedBox(height: 2),
-          Text(label,
-              style: const TextStyle(fontSize: 11, color: _kGrey)),
-        ]),
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: c,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(label, style: const TextStyle(fontSize: 11, color: _kGrey)),
+          ],
+        ),
       );
 }
 
@@ -655,7 +769,7 @@ class _MonthCard extends StatelessWidget {
 
   bool get _isCurrent {
     final now = DateTime.now();
-    final dt  = _parseMonthDocId(monthId);
+    final dt = _parseMonthDocId(monthId);
     return dt != null && dt.year == now.year && dt.month == now.month;
   }
 
@@ -669,108 +783,156 @@ class _MonthCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-              color: _isCurrent ? _kBlue : _kBorder,
-              width: _isCurrent ? 1.8 : 1.2),
+            color: _isCurrent ? _kBlue : _kBorder,
+            width: _isCurrent ? 1.8 : 1.2,
+          ),
           boxShadow: const [
             BoxShadow(
-                color: Color(0x0F1565C0),
-                blurRadius: 8,
-                offset: Offset(0, 3))
+              color: Color(0x0F1565C0),
+              blurRadius: 8,
+              offset: Offset(0, 3),
+            ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [
-              Container(
-                width: 36, height: 36,
-                decoration: BoxDecoration(
-                    color: _kBlueTint,
-                    borderRadius: BorderRadius.circular(10)),
-                child: const Icon(Icons.calendar_month_rounded,
-                    color: _kBlue, size: 18),
-              ),
-              const SizedBox(width: 10),
-              Text(_prettyMonth(monthId),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                      color: _kDark)),
-              if (_isCurrent) ...[
-                const SizedBox(width: 8),
+            Row(
+              children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 2),
+                  width: 36,
+                  height: 36,
                   decoration: BoxDecoration(
-                      color: _kBlueTint,
-                      borderRadius: BorderRadius.circular(10)),
-                  child: const Text('Current',
-                      style: TextStyle(
-                          fontSize: 10,
-                          color: _kBlue,
-                          fontWeight: FontWeight.w600)),
+                    color: _kBlueTint,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.calendar_month_rounded,
+                    color: _kBlue,
+                    size: 18,
+                  ),
                 ),
+                const SizedBox(width: 10),
+                Text(
+                  _prettyMonth(monthId),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    color: _kDark,
+                  ),
+                ),
+                if (_isCurrent) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _kBlueTint,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      'Current',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: _kBlue,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ],
-            ]),
+            ),
             const SizedBox(height: 14),
             if (total > 0) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
-                child: Row(children: [
-                  if (present > 0)
-                    Expanded(
+                child: Row(
+                  children: [
+                    if (present > 0)
+                      Expanded(
                         flex: present,
                         child: Container(
-                            height: 8,
-                            color: Colors.green.shade400)),
-                  if (absent > 0)
-                    Expanded(
+                          height: 8,
+                          color: Colors.green.shade400,
+                        ),
+                      ),
+                    if (absent > 0)
+                      Expanded(
                         flex: absent,
-                        child: Container(
-                            height: 8,
-                            color: Colors.red.shade300)),
-                ]),
+                        child: Container(height: 8, color: Colors.red.shade300),
+                      ),
+                  ],
+                ),
               ),
               const SizedBox(height: 14),
             ],
-            Row(children: [
-              Expanded(
-                  child: _badge(Icons.check_circle_rounded,
-                      '$present days', 'Present',
-                      Colors.green.shade600, Colors.green.shade50)),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: _badge(Icons.cancel_rounded,
-                      '$absent days', 'Absent',
-                      Colors.red.shade500, Colors.red.shade50)),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: _badge(Icons.event_rounded,
-                      '$total days', 'Total', _kBlue, _kBlueTint)),
-            ]),
+            Row(
+              children: [
+                Expanded(
+                  child: _badge(
+                    Icons.check_circle_rounded,
+                    '$present days',
+                    'Present',
+                    Colors.green.shade600,
+                    Colors.green.shade50,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _badge(
+                    Icons.cancel_rounded,
+                    '$absent days',
+                    'Absent',
+                    Colors.red.shade500,
+                    Colors.red.shade50,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _badge(
+                    Icons.event_rounded,
+                    '$total days',
+                    'Total',
+                    _kBlue,
+                    _kBlueTint,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _badge(IconData icon, String value, String label,
-          Color color, Color bg) =>
-      Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration:
-            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
-        child: Column(children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(height: 4),
-          Text(value,
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: color)),
-          Text(label,
-              style:
-                  const TextStyle(fontSize: 10, color: _kGrey)),
-        ]),
-      );
+  Widget _badge(
+    IconData icon,
+    String value,
+    String label,
+    Color color,
+    Color bg,
+  ) => Container(
+    padding: const EdgeInsets.symmetric(vertical: 10),
+    decoration: BoxDecoration(
+      color: bg,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Column(
+      children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: color,
+          ),
+        ),
+        Text(label, style: const TextStyle(fontSize: 10, color: _kGrey)),
+      ],
+    ),
+  );
 }

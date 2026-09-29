@@ -23,7 +23,7 @@ class _WardenDashboardState extends State<WardenDashboard> {
   static const _userId = 'warden';
 
   String _userName = '';
-  bool   _loading  = true;
+  bool _loading = true;
 
   @override
   void initState() {
@@ -49,74 +49,83 @@ class _WardenDashboardState extends State<WardenDashboard> {
   Widget build(BuildContext context) {
     return DashboardScaffold(
       dashboardName: 'Warden Dashboard',
-      userName     : _loading ? '...' : _userName,
-      onProfileTap : () => Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (_) => const StaffProfilePage(userId: _userId))),
+      userName: _loading ? '...' : _userName,
+      onProfileTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const StaffProfilePage(userId: _userId),
+        ),
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Services',
-              style: TextStyle(
-                  fontSize  : 18,
-                  fontWeight: FontWeight.bold,
-                  color     : Color(0xFF3A6B52))),
+          const Text(
+            'Services',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF3A6B52),
+            ),
+          ),
           const SizedBox(height: 16),
 
           GridView.count(
-            shrinkWrap      : true,
-            physics         : const NeverScrollableScrollPhysics(),
-            crossAxisCount  : 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
             crossAxisSpacing: 16,
-            mainAxisSpacing : 16,
+            mainAxisSpacing: 16,
             children: [
               ServiceTile(
-                icon : Icons.people,
+                icon: Icons.people,
                 title: 'Student Records',
                 onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const StudentListPage())),
+                  context,
+                  MaterialPageRoute(builder: (_) => const StudentListPage()),
+                ),
               ),
               ServiceTile(
-                icon : Icons.assignment,
+                icon: Icons.assignment,
                 title: 'Requests & Complaints',
                 onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const RequestComplaintPage())),
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const RequestComplaintPage(),
+                  ),
+                ),
               ),
               ServiceTile(
-                icon : Icons.admin_panel_settings,
+                icon: Icons.admin_panel_settings,
                 title: 'Assign Roles',
                 onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const AssignRolePage())),
+                  context,
+                  MaterialPageRoute(builder: (_) => const AssignRolePage()),
+                ),
               ),
               ServiceTile(
-                icon : Icons.notifications,
+                icon: Icons.notifications,
                 title: 'Send Notification',
                 onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const SendNotificationPage())),
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SendNotificationPage(),
+                  ),
+                ),
               ),
               ServiceTile(
-                icon : Icons.restaurant_menu_rounded,
+                icon: Icons.restaurant_menu_rounded,
                 title: 'Mess',
                 onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const WardenMessPage())),
+                  context,
+                  MaterialPageRoute(builder: (_) => const WardenMessPage()),
+                ),
               ),
               EmergencyServiceTile(
                 userId: _userId,
-                onTap : () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const EmergencyPage())),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const EmergencyPage()),
+                ),
               ),
             ],
           ),

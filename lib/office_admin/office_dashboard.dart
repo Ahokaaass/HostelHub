@@ -48,8 +48,8 @@ class _OfficeDashboardState extends State<OfficeDashboard> {
   Widget build(BuildContext context) {
     return DashboardScaffold(
       dashboardName: 'Office Admin Dashboard',
-      userName     : _loading ? '...' : _userName,
-      onProfileTap : () => Navigator.push(
+      userName: _loading ? '...' : _userName,
+      onProfileTap: () => Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => const StaffProfilePage(userId: _userId),
@@ -61,63 +61,62 @@ class _OfficeDashboardState extends State<OfficeDashboard> {
           const Text(
             'Services',
             style: TextStyle(
-              fontSize  : 18,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
-              color     : Color(0xFF3A6B52),
+              color: Color(0xFF3A6B52),
             ),
           ),
           const SizedBox(height: 16),
 
           GridView.count(
-            crossAxisCount: MediaQuery.of(context).size.width > 600
-                ? 4
-                : 2,
-            shrinkWrap      : true,
-            physics         : const NeverScrollableScrollPhysics(),
+            crossAxisCount: MediaQuery.of(context).size.width > 600 ? 4 : 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             crossAxisSpacing: 16,
-            mainAxisSpacing : 16,
+            mainAxisSpacing: 16,
             children: [
               ServiceTile(
-                icon : Icons.people,
+                icon: Icons.people,
                 title: 'Student Records',
                 onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const StudentRecordsPage())),
+                  context,
+                  MaterialPageRoute(builder: (_) => const StudentRecordsPage()),
+                ),
               ),
               ServiceTile(
-                icon : Icons.chat_bubble_outline,
+                icon: Icons.chat_bubble_outline,
                 title: 'Complaints',
                 onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const OfficeAdminComplaintPage())),
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const OfficeAdminComplaintPage(),
+                  ),
+                ),
               ),
               ServiceTile(
-                icon : Icons.admin_panel_settings,
+                icon: Icons.admin_panel_settings,
                 title: 'Staff Management',
                 onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const StaffPage())),
+                  context,
+                  MaterialPageRoute(builder: (_) => const StaffPage()),
+                ),
               ),
               ServiceTile(
-                icon : Icons.account_balance_wallet,
+                icon: Icons.account_balance_wallet,
                 title: 'Budget',
                 onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const BudgetPage())),
+                  context,
+                  MaterialPageRoute(builder: (_) => const BudgetPage()),
+                ),
               ),
               // ── ADD: Mess Management tile ──────────────────────────
               ServiceTile(
-                icon : Icons.restaurant_menu_rounded,
+                icon: Icons.restaurant_menu_rounded,
                 title: 'Mess',
                 onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) =>
-                            const MessManagementPage())),
+                  context,
+                  MaterialPageRoute(builder: (_) => const MessManagementPage()),
+                ),
               ),
             ],
           ),

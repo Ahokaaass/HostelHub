@@ -13,19 +13,22 @@ class _MessComplaintsScreenState extends State<MessComplaintsScreen> {
 
   Future<void> _forwardToMatron(String docId) async {
     try {
-      await FirebaseFirestore.instance.collection('complaints').doc(docId).update({
-        'currentStage': 'Matron',
-        'currentStageIndex': 2,
-        'status': 'pending',
-        'history': FieldValue.arrayUnion([
-          {
-            'stage': 'Mess Secretary',
-            'action': 'forwarded',
-            'note': 'Forwarded by Mess Secretary to Matron',
-            'timestamp': DateTime.now().toIso8601String(),
-          },
-        ]),
-      });
+      await FirebaseFirestore.instance
+          .collection('complaints')
+          .doc(docId)
+          .update({
+            'currentStage': 'Matron',
+            'currentStageIndex': 2,
+            'status': 'pending',
+            'history': FieldValue.arrayUnion([
+              {
+                'stage': 'Mess Secretary',
+                'action': 'forwarded',
+                'note': 'Forwarded by Mess Secretary to Matron',
+                'timestamp': DateTime.now().toIso8601String(),
+              },
+            ]),
+          });
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -40,26 +43,29 @@ class _MessComplaintsScreenState extends State<MessComplaintsScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
   Future<void> _rejectComplaint(String docId, String message) async {
     try {
-      await FirebaseFirestore.instance.collection('complaints').doc(docId).update({
-        'status': 'rejected',
-        'rejectMessage': message,
-        'history': FieldValue.arrayUnion([
-          {
-            'stage': 'Mess Secretary',
-            'action': 'rejected',
-            'note': message,
-            'timestamp': DateTime.now().toIso8601String(),
-          },
-        ]),
-      });
+      await FirebaseFirestore.instance
+          .collection('complaints')
+          .doc(docId)
+          .update({
+            'status': 'rejected',
+            'rejectMessage': message,
+            'history': FieldValue.arrayUnion([
+              {
+                'stage': 'Mess Secretary',
+                'action': 'rejected',
+                'note': message,
+                'timestamp': DateTime.now().toIso8601String(),
+              },
+            ]),
+          });
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -74,9 +80,9 @@ class _MessComplaintsScreenState extends State<MessComplaintsScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -95,9 +101,7 @@ class _MessComplaintsScreenState extends State<MessComplaintsScreen> {
         content: TextField(
           controller: ctrl,
           maxLines: 3,
-          decoration: const InputDecoration(
-            hintText: 'Reason (optional)',
-          ),
+          decoration: const InputDecoration(hintText: 'Reason (optional)'),
         ),
         actions: [
           TextButton(
@@ -107,7 +111,9 @@ class _MessComplaintsScreenState extends State<MessComplaintsScreen> {
           ElevatedButton(
             onPressed: () => Navigator.pop(
               ctx,
-              (ctrl.text.trim().isNotEmpty ? ctrl.text.trim() : 'Rejected by Mess Secretary'),
+              (ctrl.text.trim().isNotEmpty
+                  ? ctrl.text.trim()
+                  : 'Rejected by Mess Secretary'),
             ),
             child: const Text('Reject'),
           ),
@@ -182,9 +188,7 @@ class _MessComplaintsScreenState extends State<MessComplaintsScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F8FF),
-      appBar: AppBar(
-        title: const Text('Mess Complaints'),
-      ),
+      appBar: AppBar(title: const Text('Mess Complaints')),
       body: SafeArea(
         child: Column(
           children: [
@@ -261,7 +265,8 @@ class _MessComplaintsScreenState extends State<MessComplaintsScreen> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
-                                      data['studentName']?.toString() ?? 'Unknown',
+                                      data['studentName']?.toString() ??
+                                          'Unknown',
                                       style: titleStyle,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -280,7 +285,8 @@ class _MessComplaintsScreenState extends State<MessComplaintsScreen> {
                               ),
                               const SizedBox(height: 12),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.symmetric(
@@ -309,17 +315,19 @@ class _MessComplaintsScreenState extends State<MessComplaintsScreen> {
                                         ),
                                         const SizedBox(width: 8),
                                         FilledButton(
-                                          onPressed: () => _showRejectDialog(id),
+                                          onPressed: () =>
+                                              _showRejectDialog(id),
                                           style: FilledButton.styleFrom(
-                                            backgroundColor: Colors.red.shade600,
+                                            backgroundColor:
+                                                Colors.red.shade600,
                                           ),
                                           child: const Text('Reject'),
                                         ),
                                       ],
-                                    )
+                                    ),
                                   ],
                                 ],
-                              )
+                              ),
                             ],
                           ),
                         ),
@@ -335,4 +343,3 @@ class _MessComplaintsScreenState extends State<MessComplaintsScreen> {
     );
   }
 }
-

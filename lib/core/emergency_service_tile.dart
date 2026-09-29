@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-const _kBlue     = Color(0xFF1565C0);
+const _kBlue = Color(0xFF1565C0);
 const _kBlueTint = Color(0xFFE8F0FE);
 
 /// Same size and structure as ServiceTile.
 /// When unread: red border + red icon/label.
 /// On tap: marks all as read, then navigates.
 class EmergencyServiceTile extends StatelessWidget {
-  final String       userId;
+  final String userId;
   final VoidCallback onTap;
 
   const EmergencyServiceTile({
@@ -20,7 +20,7 @@ class EmergencyServiceTile extends StatelessWidget {
   Future<void> _markAllRead(List<QueryDocumentSnapshot> docs) async {
     final batch = FirebaseFirestore.instance.batch();
     for (final doc in docs) {
-      final data   = doc.data() as Map<String, dynamic>;
+      final data = doc.data() as Map<String, dynamic>;
       final readBy = List<String>.from(data['readBy'] ?? []);
       if (!readBy.contains(userId)) {
         batch.update(doc.reference, {
@@ -34,15 +34,13 @@ class EmergencyServiceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('emergencies')
-          .snapshots(),
+      stream: FirebaseFirestore.instance.collection('emergencies').snapshots(),
       builder: (context, snapshot) {
-        final docs   = snapshot.data?.docs ?? [];
-        int   unread = 0;
+        final docs = snapshot.data?.docs ?? [];
+        int unread = 0;
 
         for (final doc in docs) {
-          final data   = doc.data() as Map<String, dynamic>;
+          final data = doc.data() as Map<String, dynamic>;
           final readBy = List<String>.from(data['readBy'] ?? []);
           if (!readBy.contains(userId)) unread++;
         }
@@ -57,12 +55,12 @@ class EmergencyServiceTile extends StatelessWidget {
             onTap();
           },
           child: AnimatedContainer(
-            duration  : const Duration(milliseconds: 250),
-            curve     : Curves.easeInOut,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
             decoration: BoxDecoration(
-              color       : _kBlueTint,
+              color: _kBlueTint,
               borderRadius: BorderRadius.circular(20),
-              border      : Border.all(
+              border: Border.all(
                 color: hasUnread
                     ? Colors.red.shade400
                     : const Color(0xFFBBD0F8),
@@ -70,11 +68,11 @@ class EmergencyServiceTile extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color     : hasUnread
+                  color: hasUnread
                       ? Colors.red.withOpacity(0.12)
                       : const Color(0x0F1565C0),
                   blurRadius: 10,
-                  offset    : const Offset(0, 4),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -83,16 +81,16 @@ class EmergencyServiceTile extends StatelessWidget {
               children: [
                 // Icon bubble — white background, same as ServiceTile
                 Container(
-                  width     : 52,
-                  height    : 52,
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
-                    color       : Colors.white,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
                     Icons.warning_amber_rounded,
                     color: hasUnread ? Colors.red.shade500 : _kBlue,
-                    size : 26,
+                    size: 26,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -101,12 +99,10 @@ class EmergencyServiceTile extends StatelessWidget {
                 Text(
                   'Emergency Alerts',
                   textAlign: TextAlign.center,
-                  style    : TextStyle(
-                    fontSize  : 13,
+                  style: TextStyle(
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color     : hasUnread
-                        ? Colors.red.shade600
-                        : _kBlue,
+                    color: hasUnread ? Colors.red.shade600 : _kBlue,
                   ),
                 ),
               ],

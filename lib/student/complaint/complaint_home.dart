@@ -1224,105 +1224,6 @@ class ComplaintTrackingPage extends StatefulWidget {
 }
 
 class _ComplaintTrackingPageState extends State<ComplaintTrackingPage> {
-  bool _forwarding = false;
-
-  Future<void> _forwardComplaint(
-    Map<String, dynamic> d,
-    List<String> chain,
-    int currentIndex,
-  ) async {
-    final nextIndex = currentIndex + 1;
-    if (nextIndex >= chain.length) return;
-    setState(() => _forwarding = true);
-    try {
-      await FirebaseFirestore.instance
-          .collection('complaints')
-          .doc(widget.complaintId)
-          .update({
-            'currentStageIndex': nextIndex,
-            'currentStage': chain[nextIndex],
-            'history': FieldValue.arrayUnion([
-              {
-                'stage': chain[currentIndex],
-                'action': 'forwarded',
-                'note': 'Forwarded by student to ${chain[nextIndex]}',
-                'timestamp': DateTime.now().toIso8601String(),
-              },
-            ]),
-          });
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Forwarded to ${chain[nextIndex]}"),
-          backgroundColor: kComplaintBlue,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: $e")));
-    } finally {
-      if (mounted) setState(() => _forwarding = false);
-    }
-  }
-
-  void _showForwardConfirmation(
-    Map<String, dynamic> d,
-    List<String> chain,
-    int currentIndex,
-  ) {
-    final next = chain[currentIndex + 1];
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Icons.forward, color: kComplaintBlue),
-            SizedBox(width: 8),
-            Text(
-              'Forward Complaint',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
-            ),
-          ],
-        ),
-        content: Text("Forward this complaint to $next?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w700),
-            ),
-          ),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kComplaintBlue,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-              _forwardComplaint(d, chain, currentIndex);
-            },
-            icon: const Icon(Icons.send, size: 16),
-            label: const Text(
-              'Forward',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // helpers
   Color _statusBg(String s) {
     switch (s) {
@@ -1413,9 +1314,6 @@ class _ComplaintTrackingPageState extends State<ComplaintTrackingPage> {
           final status = d['status'] ?? 'pending';
           final incidentDate = d['incidentDate'] as String?;
           final incidentTime = d['incidentTime'] as String?;
-          final canForward =
-              currentIndex < chain.length - 1 && status == 'pending';
-
           final authorityMsg =
               (d['rejectMessage'] ??
                       d['resolveMessage'] ??
